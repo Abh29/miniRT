@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   libft.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mehill <mehill@student.21-school.ru>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/13 20:36:33 by mehill            #+#    #+#             */
+/*   Updated: 2021/11/03 19:00:53 by mehill           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef LIBFT_H
 
 # define LIBFT_H
@@ -26,6 +38,13 @@ typedef union u_double
 	double	dbl;
 	char	data[sizeof(double)];
 }			t_double;
+
+typedef struct s_dlist
+{
+	void			*content;
+	struct s_dlist	*next;
+	struct s_dlist	*prev;
+}			t_dlist;
 
 # define INT_MAX 2147483647
 # define INT_MIN -2147483648
@@ -79,6 +98,7 @@ void	ft_lstiter(t_list *lst, void (*f)(void *));
 t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 
 /** my bonuses **/
+int		ft_strcmp(char *s1, char *s2);
 void	ft_putptr_fd(void *ptr, int fd);
 char	ft_hex_digit(int nb);
 void	ft_putnbr_base_fd(int nb, const char *base, int fd);
@@ -100,5 +120,21 @@ void	ft_putdbl_exp_fd_size(double dbl, int fd, \
 		size_t *size, t_options options);
 void	ft_putchar_fd_size_options(char c, int fd, \
 		size_t *size, t_options options);
+char	*ft_strchrs(char *str, char *set);
+char	*ft_replace_word(char *str, char *word, int start, int length);
+
+/** double linked list ***/
+t_dlist	*ft_dlstnew(void *content);
+void	ft_dlstadd_front(t_dlist **lst, t_dlist *new);
+int		ft_dlstsize(t_dlist *lst);
+int		ft_dlstsize_rev(t_dlist *lst);
+t_dlist	*ft_dlstlast(t_dlist *lst);
+t_dlist	*ft_dlstfirst(t_dlist *lst);
+void	ft_dlstadd_back(t_dlist **lst, t_dlist *new);
+void	ft_dlstdelone(t_dlist *lst, void (*del)(void*));
+void	ft_dlstclear(t_dlist **lst, void (*del)(void*));
+void	ft_dlstiter(t_dlist *lst, void (*f)(void *));
+void	ft_dlstiter_rev(t_dlist *tail, void (*f)(void *));
+t_dlist	*ft_dlstmap(t_dlist *lst, void *(*f)(void *), void (*del)(void *));
 
 #endif

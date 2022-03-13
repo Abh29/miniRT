@@ -26,7 +26,12 @@ BSRC := ft_lstnew.c 	ft_lstadd_front.c 	ft_lstsize.c 	\
 		ft_putlnbr_fd_bonus.c 			ft_putdbl_fd_size_bonus.c \
 		ft_putdbl_fd_bonus.c 			ft_putchar_fd_size_bonus.c\
 		ft_putnbr_base_fd_bonus.c		ft_putnbr_unsigned_fd_bonus.c \
-		ft_atol.c
+		ft_atol.c 						ft_dlstnew_bonus.c\
+		ft_dlstadd_front_bonus.c 		ft_dlstsize_bonus.c\
+		ft_dlstlast_bonus.c 			ft_dlstadd_back_bonus.c\
+		ft_dlstdelone_bonus.c			ft_dlstclear_bonus.c\
+		ft_dlstiter_bonus.c				ft_dlstmap_bonus.c\
+		ft_strchrs_bonus.c				ft_replace_word_bonus.c
 
 
 OBJ := ${SRC:%.c=%.o}
