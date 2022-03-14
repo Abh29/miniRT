@@ -43,7 +43,10 @@ void			delete_screen(t_canvas **sc)
 	free(*sc);
 }
 
-void	init_cast_rays(t_canvas *c);
+void	init_cast_rays(t_canvas *c)
+{
+	(void)c;
+}
 
 void	init_screen_pixels(t_canvas *c)
 {
@@ -62,7 +65,7 @@ void	init_screen_pixels(t_canvas *c)
 	}
 }
 
-void			init_black_pixel(t_pixel *p, int x, int y)
+void	init_black_pixel(t_pixel *p, int x, int y)
 {
 	if (!p)
 		return ;
@@ -73,4 +76,7 @@ void			init_black_pixel(t_pixel *p, int x, int y)
 	p->x = x;
 	p->y = y;
 }
+
+
+
 

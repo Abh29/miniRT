@@ -172,3 +172,29 @@ void	mid_point(t_vect *a, t_vect *b, t_vect *mid)
 	mid->z = (a->z + b->z) / 2;
 }
 
+
+int			init_vect_str(t_vect *v, char *str)
+{
+	char	**spt;
+
+	if (v == NULL || str == NULL)
+		return (0);
+	spt = ft_split(str, ',');
+	if (!spt || !spt[0] || !spt[1] || !spt[2])
+		return (0);
+	v->x = ft_atod(spt[0]);
+	v->y = ft_atod(spt[1]);
+	v->z = ft_atod(spt[2]);
+	v->w = 0;
+	ft_free_split(&spt);
+	return (1);
+}
+
+
+int			init_point_str(t_vect *v, char *str)
+{
+	if (init_vect_str(v, str) == 0)
+		return (0);
+	v->w = 1;
+	return (1);
+}

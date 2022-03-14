@@ -98,6 +98,7 @@ void	ft_lstiter(t_list *lst, void (*f)(void *));
 t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 
 /** my bonuses **/
+double	ft_atod(const char *str);
 int		ft_strcmp(char *s1, char *s2);
 void	ft_putptr_fd(void *ptr, int fd);
 char	ft_hex_digit(int nb);

@@ -114,3 +114,23 @@ void			int_to_color(int rgb, t_rgba *c)
 	c->b = rgb & 0xFF;
 }
 
+
+int	init_rgba_str(t_rgba *c, char *str)
+{
+	char	**spt;
+
+	if (c == NULL || str == NULL)
+		return (0);
+	spt = ft_split(str, ',');
+	if (!spt || !spt[0] || !spt[1] || !spt[2])
+		return (0);
+	c->r = ft_atoi(spt[0]);
+	c->g = ft_atoi(spt[1]);
+	c->b = ft_atoi(spt[2]);
+	if (spt[3])
+		c->a = ft_atod(spt[3]);
+	else
+		c->a = 1;
+	ft_free_split(&spt);
+	return (1);
+}

@@ -32,7 +32,7 @@ BSRC := ft_lstnew.c 	ft_lstadd_front.c 	ft_lstsize.c 	\
 		ft_dlstdelone_bonus.c			ft_dlstclear_bonus.c\
 		ft_dlstiter_bonus.c				ft_dlstmap_bonus.c\
 		ft_strchrs_bonus.c				ft_replace_word_bonus.c\
-		ft_strcmp.c
+		ft_strcmp.c						ft_atod.c
 
 
 OBJ := ${SRC:%.c=%.o}

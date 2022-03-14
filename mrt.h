@@ -47,7 +47,7 @@ typedef struct  s_intrsct {
 typedef struct s_camera {
 	t_vect	pov;
 	t_vect	normal;
-	int8_t	fov;
+	int16_t	fov;
 }	t_camera;
 
 
@@ -146,6 +146,8 @@ t_vect			*new_vect(int x, int y, int z);
 t_vect			*new_point(int x, int y, int z);
 void			init_vect(t_vect *v);
 void			init_point(t_vect *v);
+int				init_vect_str(t_vect *v, char *str);
+int				init_point_str(t_vect *v, char *str);
 int				is_vect(t_vect *v);
 int				is_point(t_vect *v);
 void			write_vect(int x, int y, int z, t_vect *v);
@@ -181,6 +183,7 @@ t_rgba			*new_black();
 t_rgba			*new_white();
 t_rgba			*new_color(int r, int g, int b);
 void			init_rgba(t_rgba *c);
+int				init_rgba_str(t_rgba *c, char *str);
 void			delete_color(t_rgba **c);
 void			set_alpha(t_rgba *c, float a);
 void			add_colors(t_rgba *a, t_rgba *b, t_rgba *res);
@@ -217,6 +220,14 @@ void			init_cast_rays(t_canvas *c);
 void			init_screen_pixels(t_canvas *c);
 void			delete_canvas(t_canvas **sc);
 void			init_black_pixel(t_pixel *p, int x, int y);
+void			init_camera(t_shape *s, char **spt);
+void			init_light(t_shape *s, char **spt);
+void			init_ambient(t_shape *s, char **spt);
+void			init_sphere(t_shape *s, char **spt);
+void			init_plane(t_shape *s, char **spt);
+void			init_cylinder(t_shape *s, char **spt);
+void			init_hyperbloid(t_shape *s, char **spt);
+void			init_quadratic(t_shape *s, char **spt);
 
 /**********parser*************/
 t_dlist			*read_file(char *path);
