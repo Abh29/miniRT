@@ -247,6 +247,6 @@ void			print_vect(t_vect *v);
 void			print_mat(t_mat *m);
 void			scan_mat(t_mat *m);
 void			scan_vect(t_vect *v);
-
+void			print_shape(t_shape *s);
 
 #endif

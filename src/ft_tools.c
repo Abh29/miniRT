@@ -2,6 +2,7 @@
 
 void	ft_exit(char *str, char *msg, int err)
 {
+	ft_putstr_fd("Error\n", STDERR_FILENO);
 	ft_putstr_fd(str, STDERR_FILENO);
 	if (msg)
 	{

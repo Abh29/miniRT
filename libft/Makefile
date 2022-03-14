@@ -41,7 +41,7 @@ BOBJ := $(BSRC:%.c=%.o)
 
 CC = gcc
 
-FLGS = -Wall -Werror -Wextra
+FLGS = -Wall -Werror -Wextra -g
 
 HEADER = libft.h
 

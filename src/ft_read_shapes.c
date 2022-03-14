@@ -16,24 +16,23 @@ t_dlist	*read_file(char *path)
 	line = get_next_line(fd);
 	while (line)
 	{
+		line[ft_strlen(line) - 1] = 0;
 		p = get_shape(line);
-		if (p == NULL)
-			continue ;
-		ft_dlstadd_back(&out, ft_dlstnew(p));
+		if (p)
+			ft_dlstadd_back(&out, ft_dlstnew(p));
 		free(line);
 		line = get_next_line(fd);
 	}
+	close(fd);
 	return (out);
 }
-
-
 
 t_shape 		*get_shape(char *line)
 {
 	t_shape	*out;
 	char	**spt;
 
-	if (line == NULL || *line == '\n')
+	if (line == NULL || *line == 0)
 		return (NULL);
 	spt = ft_split(line, ' ');
 	if (!spt)
@@ -102,8 +101,18 @@ void			init_light(t_shape *s, char **spt)
 
 void			init_ambient(t_shape *s, char **spt)
 {
+	t_ambient	*l;
+
 	if (!s || !spt || !spt[0] || !spt[1] || !spt[2])
 		ft_exit("Error : not enough info for ", "Ambient !", 1);
+	s->id = ft_strdup(spt[0]);
+	l = new_ambient();
+	l->ratio = ft_atod(spt[1]);
+	if (l->ratio < 0 || l->ratio > 1)
+		ft_exit("Error : ill formed value ", "Ambient ratio !", 1);
+	if (init_rgba_str(&l->color, spt[2]) == 0)
+		ft_exit("Error : ill formed color ", "Light !", 1);
+	s->shape = l;
 }
 
 void			init_sphere(t_shape *s, char **spt)

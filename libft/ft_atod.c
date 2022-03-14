@@ -18,7 +18,7 @@ int		ft_check_dbl(const char *str)
 			else
 				return (0);
 		}
-		if (ft_isdigit(*str) == 0)
+		else if (ft_isdigit(*str) == 0)
 			return (0);
 		str++;
 	}
@@ -29,7 +29,7 @@ int		ft_pow_ten(int i)
 {
 	int out;
 
-	out = 1;
+	out = 10;
 	if (i < 0)
 		i *= -1;
 	while (out <= i)
