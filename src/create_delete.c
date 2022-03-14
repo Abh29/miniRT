@@ -20,21 +20,21 @@ void			delete_shape(t_shape **s)
 		return ;
 	sh = *s;
 	if (ft_strcmp(sh->id, "L") == 0)
-		delete_light(&(sh->shape));
+		delete_light((t_light **) &(sh->shape));
 	else if (ft_strcmp(sh->id, "C") == 0)
-		delete_camera(&sh->shape);
+		delete_camera((t_camera **) &sh->shape);
 	else if (ft_strcmp(sh->id, "A") == 0)
-		delete_ambient(&sh->shape);
+		delete_ambient((t_ambient **) &sh->shape);
 	else if (ft_strcmp(sh->id, "sp") == 0)
-		delete_sphere(&sh->shape);
+		delete_sphere((t_sphere **) &sh->shape);
 	else if (ft_strcmp(sh->id, "pl") == 0)
-		delete_plane(&sh->shape);
+		delete_plane((t_plane **) &sh->shape);
 	else if (ft_strcmp(sh->id, "cy") == 0)
-		delete_cylinder(&sh->shape);
+		delete_cylinder((t_cylinder **) &sh->shape);
 	else if (ft_strcmp(sh->id, "hy") == 0)
-		delete_hyperloid(&sh->shape);
+		delete_hyperloid((t_hyperbloid **) &sh->shape);
 	else if (ft_strcmp(sh->id, "qu") == 0)
-		delete_quadric(&sh->shape);
+		delete_quadric((t_quadric **) &sh->shape);
 	free(sh);
 }
 
@@ -47,7 +47,7 @@ t_camera	*new_camera(void)
 		ft_exit("Error : could not allocate memory\n", NULL, 1);
 	out->fov = -1;
 	init_vect(&out->normal);
-	init_vect(&out->pov);
+	init_point(&out->pov);
 	return (out);
 }
 
@@ -82,7 +82,7 @@ t_light			*new_light(void)
 	if (out == NULL)
 		ft_exit("Error : could not allocate memory\n", NULL, 1);
 	out->ratio = -1;
-	init_vect(&out->center);
+	init_point(&out->center);
 	init_rgba(&out->color);
 	return (out);
 }
@@ -99,7 +99,7 @@ t_sphere		*new_sphere(void)
 	out = malloc(sizeof(t_sphere));
 	if (out == NULL)
 		ft_exit("Error : could not allocate memory\n", NULL, 1);
-	init_vect(&out->center);
+	init_point(&out->center);
 	init_rgba(&out->color);
 	out->diam = -1;
 	return (out);
@@ -117,7 +117,7 @@ t_plane			*new_plane(void)
 	out = malloc(sizeof(t_plane));
 	if (out == NULL)
 		ft_exit("Error : could not allocate memory\n", NULL, 1);
-	init_vect(&out->vect);
+	init_point(&out->point);
 	init_vect(&out->normal);
 	init_rgba(&out->color);
 	return (out);
@@ -137,7 +137,7 @@ t_cylinder		*new_cylinder(void)
 		ft_exit("Error : could not allocate memory\n", NULL, 1);
 	out->diam = -1;
 	out->height = -1;
-	init_vect(&out->center);
+	init_point(&out->center);
 	init_vect(&out->normal);
 	init_rgba(&out->color);
 	return (out);

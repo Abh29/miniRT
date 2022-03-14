@@ -20,13 +20,19 @@ typedef struct	s_vect {
 	float	x;
 	float	y;
 	float	z;
+	int8_t	w;
 }	t_vect;
 
+typedef struct s_mat_nm {
+	int32_t n;
+	int32_t m;
+	float 	**data;
+}		t_mat;
 
 typedef struct s_rgba {
-	int8_t	r;
-	int8_t	g;
-	int8_t	b;
+	int32_t	r;
+	int32_t	g;
+	int32_t	b;
 	float	a;
 }	t_rgba;
 
@@ -110,12 +116,13 @@ typedef struct s_pixel // this will be displayed
 }	t_pixel;
 
 
-typedef struct  s_screen {
+typedef struct  s_canvas {
 	float	pixel_w;
 	float	height;
 	float	width;
 	t_vect	**cast_rays;
-}	t_screen;
+	t_pixel **pixels;
+}	t_canvas;
 
 
 typedef struct s_thcast {
@@ -130,17 +137,23 @@ typedef struct s_thcast {
 
 /**********tools*************/
 void			ft_exit(char *str, char *msg, int err);
-void			*ft_allocate(int size);
+void			*ft_allocate(int n, int size);
 void			ft_free_split(char ***split);
 
 
 /*********vecters************/
 t_vect			*new_vect(int x, int y, int z);
+t_vect			*new_point(int x, int y, int z);
+void			init_vect(t_vect *v);
+void			init_point(t_vect *v);
+int				is_vect(t_vect *v);
+int				is_point(t_vect *v);
 void			write_vect(int x, int y, int z, t_vect *v);
-void			vect_sum(t_vect *a, t_vect *b, t_vect *sum);
-void			vect_diff(t_vect *a, t_vect *b, t_vect *diff);
-void			vect_scalar(t_vect *a, float k, t_vect *prod);
+int				vect_sum(t_vect *a, t_vect *b, t_vect *sum);
+int				vect_diff(t_vect *a, t_vect *b, t_vect *diff);
+int				vect_scalar(t_vect *a, float k, t_vect *prod);
 float			vect_dot(t_vect *a, t_vect *b);
+t_vect			*vect_cross(t_vect *a, t_vect *b);
 void			delete_vect(t_vect **v);
 float			vect_norm(t_vect *v);
 float			distance_ptpt(t_vect *a, t_vect *b);
@@ -148,6 +161,34 @@ float			distance_ptln(t_vect *a, t_vect *b, t_vect *normal);
 float			distance_ptp(t_vect *a, t_plane	*p);
 void			mid_point(t_vect *a, t_vect *b, t_vect *mid);
 
+/**********matrices*****************/
+t_mat			*create_mat(int n, int m);
+void			delete_mat(t_mat **m);
+t_mat			*mat_sum(t_mat *a, t_mat *b);
+t_mat			*mat_diff(t_mat *a, t_mat *b);
+t_mat			*mat_scal(t_mat *a, float k);
+t_mat			*mat_mult(t_mat *a, t_mat *b);
+t_vect			*mat_vect(t_mat *a, t_vect *v);
+t_vect			*vect_mat(t_vect *v, t_mat *a);
+t_mat			*indentity(int n);
+t_mat			*transpose(t_mat *a);
+t_mat			*sub_mat(t_mat *a, int line, int col);
+float			det_mat(t_mat *a);
+
+/**********colors*******************/
+
+t_rgba			*new_black();
+t_rgba			*new_white();
+t_rgba			*new_color(int r, int g, int b);
+void			init_rgba(t_rgba *c);
+void			delete_color(t_rgba **c);
+void			set_alpha(t_rgba *c, float a);
+void			add_colors(t_rgba *a, t_rgba *b, t_rgba *res);
+void			diff_colors(t_rgba *a, t_rgba *b, t_rgba *res);
+void			mult_colors(t_rgba *a, t_rgba *b, t_rgba *res);
+void			alter_color(t_rgba *c, int r, int g, int b);
+int				color_to_int(t_rgba *c);
+void			int_to_color(int rgb, t_rgba *c);
 
 /**********create-delete*********/
 t_shape			*new_shape(void);
@@ -168,16 +209,17 @@ t_hyperbloid	*new_hyperbloid(void);
 void			delete_hyperloid(t_hyperbloid **h);
 t_quadric		*new_quadric(void);
 void			delete_quadric(t_quadric **q);
-
+	
 
 /*********init***************/
-t_screen		*init_screen(t_camera *c, int H, int W);
-void			delete_screen(t_screen **sc);
-void			init_vect(t_vect *v);
-void			init_rgba(t_rgba *c);
+t_canvas		*init_canvas(t_camera *c, int H, int W);
+void			init_cast_rays(t_canvas *c);
+void			init_screen_pixels(t_canvas *c);
+void			delete_canvas(t_canvas **sc);
+void			init_black_pixel(t_pixel *p, int x, int y);
 
 /**********parser*************/
-t_list			*read_file(char *path);
+t_dlist			*read_file(char *path);
 t_shape 		*get_shape(char *line);
 
 
@@ -189,7 +231,11 @@ void			delete_intersection_point(t_intrsct **p);
 /*********calculation********/
 
 
-
+/**********printers**********/
+void			print_vect(t_vect *v);
+void			print_mat(t_mat *m);
+void			scan_mat(t_mat *m);
+void			scan_vect(t_vect *v);
 
 
 #endif

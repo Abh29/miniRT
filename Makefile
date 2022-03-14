@@ -1,5 +1,5 @@
 #first parts 
-SRC :=	main.c  gnl/get_next_line.c gnl/get_next_line_utils.c 
+SRC :=	main.c  gnl/get_next_line.c gnl/get_next_line_utils.c  src/*.c
 
 #bonnus 
 BSRC :=	$(SRC)

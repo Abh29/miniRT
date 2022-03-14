@@ -5,7 +5,7 @@ void	ft_exit(char *str, char *msg, int err)
 	ft_putstr_fd(str, STDERR_FILENO);
 	if (msg)
 	{
-		ft_putchar_fd(msg, STDERR_FILENO);
+		ft_putstr_fd(msg, STDERR_FILENO);
 		ft_putstr_fd("\n", STDERR_FILENO);
 	}
 	exit(err);

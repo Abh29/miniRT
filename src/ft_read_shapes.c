@@ -1,6 +1,6 @@
 #include "../mrt.h"
 
-t_list	*read_file(char *path)
+t_dlist	*read_file(char *path)
 {
 	int 	fd;
 	t_dlist	*out;
