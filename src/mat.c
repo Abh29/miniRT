@@ -244,6 +244,7 @@ t_mat			*sub_mat(t_mat *a, int line, int col)
 			k++;
 		}
 		i++;
+		l++;
 	}
 	return (out);
 }
@@ -264,10 +265,11 @@ float			det_mat(t_mat *a)
 	}
 	det = 0;
 	s = 1;
+	i = 0;
 	while (i < a->n)
 	{
 		tmp = sub_mat(a, 0, i);
-		det += s * det_mat(tmp);
+		det += s * det_mat(tmp) * a->data[0][i];
 		delete_mat(&tmp);
 		s *= -1;
 		i++;

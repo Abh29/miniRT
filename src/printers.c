@@ -23,7 +23,7 @@ void			print_mat(t_mat *m)
 	{
 		for (int j = 0; j < m->m; j++)
 		{
-			printf(" %.2f |", m->data[i][j]);
+			printf(" %5.2f |", m->data[i][j]);
 		}
 		printf("\n");
 	}

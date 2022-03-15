@@ -6,17 +6,12 @@ int	main(int argc, char **argv)
 {
 	(void) argc;
 	(void) argv;
-	t_dlist *l = read_file("testmap");
-	t_shape *s;
 
-	printf("size of the list : %d\n", ft_dlstsize(l));
+	t_mat *m = create_mat(5, 5);
+	scan_mat(m);
+	print_mat(m);
+	printf("det  = %f\n", det_mat(m));
 
-	while (l)
-	{
-		s = l->content;
-		printf("shape : %s\n", s->id);
-		l = l->next;
-	}
 	printf("hello world \n");
 	return (0);
 }
