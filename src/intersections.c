@@ -1,6 +1,6 @@
 #include "../mrt.h"
 
-t_intrsct		*new_intersection_point(void)
+t_intrsct	*new_intersection_point(void)
 {
 	t_intrsct	*out;
 
@@ -12,11 +12,22 @@ t_intrsct		*new_intersection_point(void)
 	return (out);
 }
 
-void			delete_intersection_point(t_intrsct **p)
+void	delete_intersection_point(t_intrsct **p)
 {
 	if (p == NULL || *p == NULL)
 		return ;
 	free(*p);
+}
+
+t_intrsct	*intersection_cpy(t_intrsct *p)
+{
+	t_intrsct	*out;
+
+	if (p == NULL)
+		return (NULL);
+	out = new_intersection_point();
+	ft_memcpy(out, p, sizeof(t_intrsct));
+	return (out);
 }
 
 t_intrsct	*intr_shape_vect(t_shape *s, t_vect *v, t_camera *c)
@@ -42,7 +53,7 @@ t_intrsct	*intr_shape_vect(t_shape *s, t_vect *v, t_camera *c)
 	return (out);
 }
 
-t_intrsct		*intr_light_vect(t_light *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_light_vect(t_light *s, t_vect *v, t_camera *c)
 {
 	t_sphere	*tmp;
 	t_intrsct	*out;
@@ -56,17 +67,12 @@ t_intrsct		*intr_light_vect(t_light *s, t_vect *v, t_camera *c)
 	return (out);
 }
 
-float	descrimentant(t_sphere *s, t_vect *v, t_camera *cm, t_2deg_equ *equ)
+void	solve_2deg_equ(t_2deg_equ *equ)
 {
-	t_vect	*direct;
-	float 	t;
+	float	t;
 
-	direct = new_vect(0, 0, 0);
-	vect_diff(&s->center, &cm->pov, direct);
-	equ->a = vect_dot(v, v);
-	equ->b = 2 * vect_dot(v, direct);
-	equ->c = vect_dot(direct, direct);
-	delete_vect(&direct);
+	if (equ == NULL)
+		return ;
 	equ->delta = equ->b * equ->b - 4 * equ->a * equ->c;
 	if (equ->delta >= 0)
 	{
@@ -80,16 +86,29 @@ float	descrimentant(t_sphere *s, t_vect *v, t_camera *cm, t_2deg_equ *equ)
 		else
 			equ->x2 = t;
 	}
+}
+
+float	descrimentant_sphere(t_sphere *s, t_vect *v, t_camera *cm, t_2deg_equ *equ)
+{
+	t_vect	*direct;
+
+	direct = new_vect(0, 0, 0);
+	vect_diff(&s->center, &cm->pov, direct);
+	equ->a = vect_dot(v, v);
+	equ->b = 2 * vect_dot(v, direct);
+	equ->c = vect_dot(direct, direct);
+	delete_vect(&direct);
+	solve_2deg_equ(equ);
 	return (equ->delta);
 }
 
-t_intrsct		*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 {
 	t_2deg_equ	equ;
 	t_intrsct	*out;
 	t_vect		p;
 
-	if (descrimentant(s, v, c, &equ) < 0)
+	if (descrimentant_sphere(s, v, c, &equ) < 0)
 		return (NULL);
 	if (equ.x1 < 0 && equ.x2 < 0)
 		return (NULL);
@@ -103,7 +122,7 @@ t_intrsct		*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 	return (out);
 }
 
-t_intrsct		*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c)
 {
 	t_intrsct	*out;
 	float		denom;
@@ -126,7 +145,7 @@ t_intrsct		*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c)
 	return (out);
 }
 
-t_intrsct		*intr_disk_vect(t_plane *s, t_vect *v, t_camera *c, float diam)
+t_intrsct	*intr_disk_vect(t_plane *s, t_vect *v, t_camera *c, float diam)
 {
 	t_intrsct	*out;
 	float		tmp;
@@ -145,29 +164,97 @@ t_intrsct		*intr_disk_vect(t_plane *s, t_vect *v, t_camera *c, float diam)
 	return (out);
 }
 
-t_intrsct		*intr_cylinder_vect(t_cylinder *s, t_vect *v, t_camera *c)
+float	descrimentant_cylinder(t_cylinder *s, t_vect *v, t_camera *c, t_2deg_equ *equ)
+{
+	t_vect	tmpv;
+	float	tmpf;
+	t_vect	tmpv2;
+	t_vect	p;
+
+	tmpf = vect_dot(&s->normal, v);
+	vect_scalar(&s->normal, tmpf, &tmpv);
+	vect_diff(v, &tmpv, &tmpv);
+	equ->a = vect_dot(&tmpv, &tmpv);
+	vect_diff(&c->pov, &s->center, &p);
+	tmpf = vect_dot(&p, &s->normal);
+	vect_scalar(&s->normal, tmpf, &tmpv2);
+	vect_diff(&p, &tmpv2, &tmpv2);
+	equ->b = 2 * vect_dot(&tmpv, &tmpv2);
+	tmpf = vect_dot(&tmpv2, &tmpv2);
+	equ->c = tmpf * tmpf - s->diam * s->diam;
+	solve_2deg_equ(equ);
+	return (equ->delta);
+}
+
+t_intrsct	*closest_intersection(t_intrsct *a, t_intrsct *b, t_vect *cntr)
 {
 	t_intrsct	*out;
-	t_intrsct	*tp1;
-	t_intrsct	*tp2;
-	t_plane		*p1;
+	int			t;
 
-	p1 = new_plane();
-
-	p1->point = s->center;
-	p1->color = s->color;
-	p1->normal = s->normal;
-	tp1 = intr_disk_vect(p1, v, c, s->diam);
-	vect_scalar(&p1->normal, s->height, &p1->normal);
-	vect_sum(&p1->point, &p1->normal, &p1->point);
-	p1->normal = s->normal;
-	tp2 = intr_disk_vect(p1, v, c, s->diam);
-	if (tp1 == NULL && tp2 == NULL)
-		(void)out;
-	return (NULL);
+	if ((!a && !b) || !cntr)
+		return (NULL);
+	t = dist_cmp(&a->point, &b->point, cntr);
+	if (t == 0)
+		return (NULL);
+	if (t > 0)
+		out = intersection_cpy(a);
+	else
+		out = intersection_cpy(b);
+	return (out);
 }
 
-t_intrsct		*intr_hyperbloid_vect(t_hyperbloid *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_side_cylinder(t_cylinder *s, t_vect *v, t_camera *c)
+{
+	t_intrsct	*out;
+	t_2deg_equ	equ;
+	t_vect		x;
+	t_vect		tmp;
+	float		d;
+
+	if (fabsf(descrimentant_cylinder(s, v, c, &equ)) < EPSILON || (equ.x1 < 0 && equ.x2 < 0))
+		return (NULL);
+	vect_scalar(v, equ.x1, &x);
+	vect_sum(&c->pov, &x, &x);
+	vect_diff(&x, &s->center, &tmp);
+	d = prjct_resolution(&tmp, &s->normal);
+	if (d < 0 || d > s->height)
+		return (NULL);
+	out = new_intersection_point();
+	out->point = x;
+	vect_scalar(&s->normal, d, &tmp);
+	vect_sum(&s->center, &tmp, &tmp);
+	vect_diff(&x, &tmp, &out->normal);
+	normalize(&out->normal);
+	color_cpy(&s->color, &out->color);
+	return (out);
+}
+
+t_intrsct	*intr_cylinder_vect(t_cylinder *s, t_vect *v, t_camera *c)
+{
+	t_intrsct	*out;
+	t_intrsct	*tp[4];
+	t_plane		*pl;
+
+	pl = new_plane();
+	pl->point = s->center;
+	pl->color = s->color;
+	pl->normal = s->normal;
+	tp[0] = intr_disk_vect(pl, v, c, s->diam);
+	vect_scalar(&pl->normal, s->height, &pl->normal);
+	vect_sum(&pl->point, &pl->normal, &pl->point);
+	pl->normal = s->normal;
+	tp[1] = intr_disk_vect(pl, v, c, s->diam);
+	tp[2] = closest_intersection(tp[0], tp[1], &c->pov);
+	delete_intersection_point(&tp[0]);
+	delete_intersection_point(&tp[1]);
+	tp[3] = intr_side_cylinder(s, v, c);
+	out = closest_intersection(tp[2], tp[3], &c->pov);
+	delete_intersection_point(&tp[3]);
+	delete_intersection_point(&tp[2]);
+	return (out);
+}
+
+t_intrsct	*intr_hyperbloid_vect(t_hyperbloid *s, t_vect *v, t_camera *c)
 {
 	(void)s;
 	(void)v;
@@ -175,14 +262,10 @@ t_intrsct		*intr_hyperbloid_vect(t_hyperbloid *s, t_vect *v, t_camera *c)
 	return (NULL);
 }
 
-t_intrsct		*intr_quadric_vect(t_quadric *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_quadric_vect(t_quadric *s, t_vect *v, t_camera *c)
 {
 	(void)s;
 	(void)v;
 	(void)c;
 	return (NULL);
 }
-
-
-
-

@@ -127,6 +127,8 @@ float	distance_ptpt(t_vect *a, t_vect *b)
 {
 	float out;
 
+	if (!a || !b)
+		return (INT_MAX);
 	out = powf(b->x - a->x, 2);
 	out += powf(b->y - a->y, 2);
 	out += powf(b->z - a->z, 2);
@@ -250,4 +252,27 @@ int	vect_lin(t_vect *a, t_vect *b)
 	if (fabsf(t1) < EPSILON && fabs(t2) < EPSILON)
 		return (1);
 	return (0);
+}
+
+
+int	dist_cmp(t_vect *a, t_vect *b, t_vect *cntr)
+{
+	if ((!a && !b) || !cntr)
+		return (0);
+	if (distance_ptpt(cntr, a) < distance_ptpt(cntr, b))
+		return (1);
+	else
+		return (-1);
+}
+
+float			prjct_resolution(t_vect *a, t_vect *b)
+{
+	float	out;
+
+	if (!a || !b)
+		return (0);
+	if (nullvect(a) || nullvect(b))
+		return (0);
+	out = vect_dot(a, b) / vect_dot(b, b);
+	return (out);
 }

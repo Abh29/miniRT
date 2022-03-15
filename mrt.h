@@ -178,6 +178,8 @@ void			mid_point(t_vect *a, t_vect *b, t_vect *mid);
 void			normalize(t_vect *v);
 int				nullvect(t_vect *v);
 float			vect_len(t_vect *v);
+int				dist_cmp(t_vect *a, t_vect *b, t_vect *cntr);
+float			prjct_resolution(t_vect *a, t_vect *b);
 
 /**********matrices*****************/
 t_mat			*create_mat(int n, int m);
@@ -209,7 +211,7 @@ void			mult_colors(t_rgba *a, t_rgba *b, t_rgba *res);
 void			alter_color(t_rgba *c, int r, int g, int b);
 int				color_to_int(t_rgba *c);
 void			int_to_color(int rgb, t_rgba *c);
-void			color_cpy(t_rgba *c, t_rgba *cpy);
+void			color_cpy(t_rgba *c, t_rgba *dest);
 
 /**********create-delete*********/
 t_shape			*new_shape(void);
@@ -255,6 +257,7 @@ t_shape 		*get_shape(char *line);
 /**********intersections*******/
 t_intrsct		*new_intersection_point(void);
 void			delete_intersection_point(t_intrsct **p);
+t_intrsct		*intersection_cpy(t_intrsct *p);
 t_intrsct		*intr_shape_vect(t_shape *s, t_vect *v, t_camera *c);
 t_intrsct		*intr_light_vect(t_light *s, t_vect *v, t_camera *c);
 t_intrsct		*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c);
