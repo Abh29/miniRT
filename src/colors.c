@@ -134,3 +134,10 @@ int	init_rgba_str(t_rgba *c, char *str)
 	ft_free_split(&spt);
 	return (1);
 }
+
+void	color_cpy(t_rgba *c, t_rgba *cpy)
+{
+	if (c == NULL || cpy == NULL)
+		return ;
+	ft_memcpy(cpy, c, sizeof(t_rgba));
+}

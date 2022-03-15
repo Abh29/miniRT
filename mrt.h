@@ -16,6 +16,8 @@
 # include <math.h>
 
 
+#define EPSILON   1e-6
+
 typedef struct	s_vect {
 	float	x;
 	float	y;
@@ -41,6 +43,7 @@ typedef struct  s_intrsct {
 	t_vect	point;
 	t_vect	normal;
 	t_rgba	color;
+	float	dist;
 }	t_intrsct;
 
 
@@ -133,6 +136,15 @@ typedef struct s_thcast {
 	pthread_t	th_id;
 }		t_thcast;
 
+typedef	struct s_2deg_equ {
+	float	a;
+	float	b;
+	float	c;
+	float	delta;
+	float	x1;
+	float	x2;
+}		t_2deg_equ;
+
 
 
 /**********tools*************/
@@ -157,11 +169,15 @@ int				vect_scalar(t_vect *a, float k, t_vect *prod);
 float			vect_dot(t_vect *a, t_vect *b);
 t_vect			*vect_cross(t_vect *a, t_vect *b);
 void			delete_vect(t_vect **v);
+int				vect_lin(t_vect *a, t_vect *b);
 float			vect_norm(t_vect *v);
 float			distance_ptpt(t_vect *a, t_vect *b);
 float			distance_ptln(t_vect *a, t_vect *b, t_vect *normal);
 float			distance_ptp(t_vect *a, t_plane	*p);
 void			mid_point(t_vect *a, t_vect *b, t_vect *mid);
+void			normalize(t_vect *v);
+int				nullvect(t_vect *v);
+float			vect_len(t_vect *v);
 
 /**********matrices*****************/
 t_mat			*create_mat(int n, int m);
@@ -193,6 +209,7 @@ void			mult_colors(t_rgba *a, t_rgba *b, t_rgba *res);
 void			alter_color(t_rgba *c, int r, int g, int b);
 int				color_to_int(t_rgba *c);
 void			int_to_color(int rgb, t_rgba *c);
+void			color_cpy(t_rgba *c, t_rgba *cpy);
 
 /**********create-delete*********/
 t_shape			*new_shape(void);
@@ -238,6 +255,23 @@ t_shape 		*get_shape(char *line);
 /**********intersections*******/
 t_intrsct		*new_intersection_point(void);
 void			delete_intersection_point(t_intrsct **p);
+t_intrsct		*intr_shape_vect(t_shape *s, t_vect *v, t_camera *c);
+t_intrsct		*intr_light_vect(t_light *s, t_vect *v, t_camera *c);
+t_intrsct		*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c);
+t_intrsct		*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c);
+t_intrsct		*intr_cylinder_vect(t_cylinder *s, t_vect *v, t_camera *c);
+t_intrsct		*intr_hyperbloid_vect(t_hyperbloid *s, t_vect *v, t_camera *c);
+t_intrsct		*intr_quadric_vect(t_quadric *s, t_vect *v, t_camera *c);
+
+
+/**********transformations*******/
+t_mat			*translation_matrix(float x, float y, float z);
+t_mat			*scaling_matrix(float x, float y, float z);
+t_mat			*rotation_x(float deg);
+t_mat			*rotation_y(float deg);
+t_mat			*rotation_z(float deg);
+t_mat			*shearing(float prp[6]);
+t_mat			*rotation_matrix(void);
 
 
 /*********calculation********/
@@ -251,17 +285,3 @@ void			scan_vect(t_vect *v);
 void			print_shape(t_shape *s);
 
 #endif
-
-/*
-
- -5 | 2 | 6 | -8 |
-| 1 | -5 | 1 | 8 |
-| 7 | 7 | -6 | -7 |
-| 1 | -3 | 7 | 4 
-
- 0.21805 | 0.45113 | 0.24060 | -0.04511 |
-| -0.80827 | -1.45677 | -0.44361 | 0.52068 |
-| -0.07895 | -0.22368 | -0.05263 | 0.19737 |
-| -0.52256 | -0.81391 | -0.30075 | 0.30639 |
-
-*/

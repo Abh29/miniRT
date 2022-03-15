@@ -198,3 +198,56 @@ int			init_point_str(t_vect *v, char *str)
 	v->w = 1;
 	return (1);
 }
+
+
+void	normalize(t_vect *v)
+{
+	float	d;
+
+	if (v == NULL || nullvect(v) || is_point(v))
+		return ;
+	d = vect_len(v);
+	v->x /= d;
+	v->y /= d;
+	v->z /= d;
+}
+
+
+float	vect_len(t_vect *v)
+{
+	float	out;
+
+	if (v == NULL || nullvect(v) || is_point(v))
+		return (0);
+	out = v->x * v->x + v->y * v->y + v->z + v->z;
+	out = sqrtf(out);
+	return (out);
+}
+
+int				nullvect(t_vect *v)
+{
+	if (v == NULL)
+		return (1);
+	if (fabsf(v->x) < EPSILON)
+		if (fabsf(v->y) < EPSILON)
+			if (fabsf(v->z) < EPSILON)
+				return (1);
+	return (0);
+}
+
+
+int	vect_lin(t_vect *a, t_vect *b)
+{
+	float t1;
+	float t2;
+
+	if (a == NULL || b == NULL)
+		return (1);
+	if (nullvect(a) || nullvect(b))
+		return (1);
+	t1 = a->x * b->y - b->x * a->y;
+	t2 = a->x * b->z - b->x * a->z;
+	if (fabsf(t1) < EPSILON && fabs(t2) < EPSILON)
+		return (1);
+	return (0);
+}

@@ -290,7 +290,7 @@ t_mat	*rev_mat(t_mat *a)
 	if (!a || a->n != a->m)
 		ft_exit("Error : inverse of non square matrix !\n", NULL, 1);
 	det = det_mat(a);
-	if (det < 0.000001)
+	if (fabsf(det) < EPSILON)
 		ft_exit("Error : matrix in not inversible det = 0 !", NULL, 1);
 	out = create_mat(a->n, a->m);
 	i = 0;
