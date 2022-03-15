@@ -174,6 +174,7 @@ t_mat			*indentity(int n)
 	if (n < 1)
 		return (NULL);
 	out = create_mat(n, n);
+	i = 0;
 	while (i < n)
 	{
 		j = 0;
@@ -199,18 +200,18 @@ t_mat			*transpose(t_mat *a)
 
 	if (!a)
 		return (NULL);
-	out = create_mat(a->n, a->m);
+	out = create_mat(a->m, a->n);
+	i = 0;
 	while (i < a->n)
 	{
 		j = 0;
 		while (j < a->m)
 		{
-			out->data[i][j] = a->data[j][i];
+			out->data[j][i] = a->data[i][j];
 			j++;
 		}
 		i++;
 	}
-	out->data[i] = NULL;
 	return (out);
 }
 
@@ -275,4 +276,37 @@ float			det_mat(t_mat *a)
 		i++;
 	}
 	return (det);
+}
+
+
+t_mat	*rev_mat(t_mat *a)
+{
+	float	det;
+	t_mat	*out;
+	int		i;
+	int		j;
+	t_mat	*tmp;
+
+	if (!a || a->n != a->m)
+		ft_exit("Error : inverse of non square matrix !\n", NULL, 1);
+	det = det_mat(a);
+	if (det < 0.000001)
+		ft_exit("Error : matrix in not inversible det = 0 !", NULL, 1);
+	out = create_mat(a->n, a->m);
+	i = 0;
+	while (i < a->n)
+	{
+		j = 0;
+		while (j < a->m)
+		{
+			tmp = sub_mat(a, i, j);
+			out->data[i][j] = powf(-1, i + j) * det_mat(tmp) / det;
+			delete_mat(&tmp);
+			j++;
+		}
+		i++;
+	}
+	tmp = transpose(out);
+	delete_mat(&out);
+	return (tmp);
 }
