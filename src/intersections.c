@@ -96,7 +96,7 @@ float	descrimentant_sphere(t_sphere *s, t_vect *v, t_camera *cm, t_2deg_equ *equ
 	vect_diff(&s->center, &cm->pov, direct);
 	equ->a = vect_dot(v, v);
 	equ->b = 2 * vect_dot(v, direct);
-	equ->c = vect_dot(direct, direct);
+	equ->c = vect_dot(direct, direct) - s->diam * s->diam;
 	delete_vect(&direct);
 	solve_2deg_equ(equ);
 	return (equ->delta);
@@ -244,10 +244,13 @@ t_intrsct	*intr_cylinder_vect(t_cylinder *s, t_vect *v, t_camera *c)
 	vect_sum(&pl->point, &pl->normal, &pl->point);
 	pl->normal = s->normal;
 	tp[1] = intr_disk_vect(pl, v, c, s->diam);
+	return(tp[0]);
 	tp[2] = closest_intersection(tp[0], tp[1], &c->pov);
+	//tp[2] = NULL;
 	delete_intersection_point(&tp[0]);
 	delete_intersection_point(&tp[1]);
-	tp[3] = intr_side_cylinder(s, v, c);
+	//tp[3] = intr_side_cylinder(s, v, c);
+	tp[3] = NULL;
 	out = closest_intersection(tp[2], tp[3], &c->pov);
 	delete_intersection_point(&tp[3]);
 	delete_intersection_point(&tp[2]);

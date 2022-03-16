@@ -208,6 +208,7 @@ void	normalize(t_vect *v)
 
 	if (v == NULL || nullvect(v) || is_point(v))
 		return ;
+	vect_scalar(v, 10, v);
 	d = vect_len(v);
 	v->x /= d;
 	v->y /= d;

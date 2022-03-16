@@ -14,7 +14,7 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 # include <math.h>
-
+# include <mlx.h>
 
 #define EPSILON   1e-6
 
@@ -35,7 +35,7 @@ typedef struct s_rgba {
 	int32_t	r;
 	int32_t	g;
 	int32_t	b;
-	float	a;
+	int32_t	a;
 }	t_rgba;
 
 
@@ -146,6 +146,17 @@ typedef	struct s_2deg_equ {
 }		t_2deg_equ;
 
 
+typedef struct s_mlx
+{
+	void	*mlx;
+	void	*window;
+	void	*img;
+	char	*addr;
+	int		bpp;
+	int		line_length;
+	int		endian;
+}				t_mlx;
+
 
 /**********tools*************/
 void			ft_exit(char *str, char *msg, int err);
@@ -236,7 +247,7 @@ void			delete_quadric(t_quadric **q);
 
 /*********init***************/
 t_canvas		*init_canvas(t_camera *c, int H, int W);
-void			init_cast_rays(t_canvas *c);
+void			init_cast_rays(t_canvas *cnv, t_camera *c);
 void			init_screen_pixels(t_canvas *c);
 void			delete_canvas(t_canvas **sc);
 void			init_black_pixel(t_pixel *p, int x, int y);
@@ -277,7 +288,7 @@ t_mat			*shearing(float prp[6]);
 t_mat			*rotation_matrix(void);
 
 
-/*********calculation********/
+/*********casting********/
 
 
 /**********printers**********/
@@ -286,5 +297,9 @@ void			print_mat(t_mat *m);
 void			scan_mat(t_mat *m);
 void			scan_vect(t_vect *v);
 void			print_shape(t_shape *s);
+
+
+/***********display*************/
+void	ft_put_pixel(t_mlx *img, int x, int y, int color);
 
 #endif

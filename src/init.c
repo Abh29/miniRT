@@ -21,7 +21,7 @@ t_canvas		*init_canvas(t_camera *c, int H, int W)
 	}
 	out->cast_rays[i] = NULL;
 	out->pixels[i] = NULL;
-	init_cast_rays(out);
+	init_cast_rays(out, c);
 	init_screen_pixels(out);
 	return (out);
 }
@@ -43,9 +43,23 @@ void			delete_screen(t_canvas **sc)
 	free(*sc);
 }
 
-void	init_cast_rays(t_canvas *c)
+void	init_cast_rays(t_canvas *cnv, t_camera *c)
 {
-	(void)c;
+	(void) c;
+
+	for (int i = 0; i < cnv->height; i++)
+	{
+		for (int j = 0; j < cnv->width; j++)
+		{
+			cnv->cast_rays[i][j].x = 1;
+			cnv->cast_rays[i][j].y = i * cnv->pixel_w - cnv->height * cnv->pixel_w / 2;
+			cnv->cast_rays[i][j].z = j * cnv->pixel_w - cnv->width * cnv->pixel_w / 2;
+		//	cnv->cast_rays[i][j].y = i - cnv->height / 2;
+		//	cnv->cast_rays[i][j].z = -j;
+		//	cnv->cast_rays[i][j].w = 0;
+			normalize(&cnv->cast_rays[i][j]);
+		}		
+	}
 }
 
 void	init_screen_pixels(t_canvas *c)
@@ -60,8 +74,10 @@ void	init_screen_pixels(t_canvas *c)
 		while (j < c->width)
 		{
 			init_black_pixel(&c->pixels[i][j], i, j);
+			
 			j++;
 		}
+		i++;
 	}
 }
 
@@ -69,10 +85,10 @@ void	init_black_pixel(t_pixel *p, int x, int y)
 {
 	if (!p)
 		return ;
-	alter_color(&p->color, 0, 0, 0);
-	set_alpha(&p->color, 1);
+	alter_color(&p->color, 255, 255, 255);
+	set_alpha(&p->color, 0);
 	alter_color(&p->reflection, 0, 0, 0);
-	set_alpha(&p->reflection, 1);
+	set_alpha(&p->reflection, 0);
 	p->x = x;
 	p->y = y;
 }

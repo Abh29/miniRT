@@ -99,7 +99,8 @@ int				color_to_int(t_rgba *c)
 
 	if (!c)
 		return (0);
-	out = c->r;
+	out = c->a;
+	out = (out << 8) + c->r;
 	out = (out << 8) + c->g;
 	out = (out << 8) + c->b;
 	return (out);
@@ -109,6 +110,7 @@ void			int_to_color(int rgb, t_rgba *c)
 {
 	if (!c)
 		return ;
+	c->a = (rgb >> 24) & 0xFF;
 	c->r = (rgb >> 16) & 0xFF;
 	c->g = (rgb >> 8) & 0xFF;
 	c->b = rgb & 0xFF;
