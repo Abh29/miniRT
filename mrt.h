@@ -19,17 +19,11 @@
 #define EPSILON   1e-6
 
 typedef struct	s_vect {
-	float	x;
-	float	y;
-	float	z;
+	double	x;
+	double	y;
+	double	z;
 	int8_t	w;
 }	t_vect;
-
-typedef struct s_mat_nm {
-	int32_t n;
-	int32_t m;
-	float 	**data;
-}		t_mat;
 
 typedef struct s_rgba {
 	int32_t	r;
@@ -39,43 +33,54 @@ typedef struct s_rgba {
 }	t_rgba;
 
 
-typedef struct  s_intrsct {
-	t_vect	point;
-	t_vect	normal;
-	t_rgba	color;
-	float	dist;
-}	t_intrsct;
-
+typedef	struct s_mat_nm{
+	int32_t n;
+	int32_t m;
+	double	**data;
+}	t_mat;
 
 typedef struct s_camera {
 	t_vect	pov;
 	t_vect	normal;
+	t_vect	up;
+	t_vect	right;
 	int16_t	fov;
 }	t_camera;
 
 
 typedef struct s_ambiant {
-	float	ratio;
+	double	ratio;
 	t_rgba	color;
 }	t_ambient;
 
 
 typedef struct s_light {
 	t_vect	center;
-	float	ratio;
+	double	ratio;
 	t_rgba	color;
 }	t_light;
 
 
+typedef	enum e_shapes{
+	E_CAMERA,
+	E_AMBIENT,
+	E_LIGHT,
+	E_SPHERE,
+	E_PLANE,
+	E_CYLINDER,
+	E_HYPERBLOID,
+	E_QUADRATIC
+}		t_shape_id;
+
 typedef struct  s_shape {
-	char	*id;
-	void	*shape;
+	t_shape_id	id;
+	void		*shape;
 }	t_shape;
 
 
 typedef struct  s_sphere {
 	t_vect	center;
-	float	diam;
+	double	diam;
 	t_rgba	color;
 }	t_sphere;
 
@@ -89,14 +94,14 @@ typedef struct	s_plane {
 typedef struct s_cylinder {
 	t_vect	center;
 	t_vect	normal;
-	float	diam;
-	float	height;
+	double	diam;
+	double	height;
 	t_rgba	color;
 }	t_cylinder;
 
 typedef struct	s_hyperbloid {
 	t_vect	abc;
-	float	k;
+	double	k;
 	t_rgba	color;
 }	t_hyperbloid;
 
@@ -105,9 +110,17 @@ typedef struct s_quadric {
 	t_vect	xx;
 	t_vect	yy;
 	t_vect	zz;
-	float	k;
+	double	k;
 	t_rgba	color;
 }	t_quadric;
+
+typedef struct  s_intrsct {
+	t_vect	point;
+	t_vect	normal;
+	t_rgba	color;
+	double	dist;
+	t_shape	s;
+}	t_intrsct;
 
 
 typedef struct s_pixel // this will be displayed
@@ -120,9 +133,9 @@ typedef struct s_pixel // this will be displayed
 
 
 typedef struct  s_canvas {
-	float	pixel_w;
-	float	height;
-	float	width;
+	double	pixel_w;
+	double	height;
+	double	width;
 	t_vect	**cast_rays;
 	t_pixel **pixels;
 }	t_canvas;
@@ -137,12 +150,12 @@ typedef struct s_thcast {
 }		t_thcast;
 
 typedef	struct s_2deg_equ {
-	float	a;
-	float	b;
-	float	c;
-	float	delta;
-	float	x1;
-	float	x2;
+	double	a;
+	double	b;
+	double	c;
+	double	delta;
+	double	x1;
+	double	x2;
 }		t_2deg_equ;
 
 
@@ -165,8 +178,8 @@ void			ft_free_split(char ***split);
 
 
 /*********vecters************/
-t_vect			*new_vect(int x, int y, int z);
-t_vect			*new_point(int x, int y, int z);
+t_vect			new_vect(int x, int y, int z);
+t_vect			new_point(int x, int y, int z);
 void			init_vect(t_vect *v);
 void			init_point(t_vect *v);
 int				init_vect_str(t_vect *v, char *str);
@@ -176,35 +189,35 @@ int				is_point(t_vect *v);
 void			write_vect(int x, int y, int z, t_vect *v);
 int				vect_sum(t_vect *a, t_vect *b, t_vect *sum);
 int				vect_diff(t_vect *a, t_vect *b, t_vect *diff);
-int				vect_scalar(t_vect *a, float k, t_vect *prod);
-float			vect_dot(t_vect *a, t_vect *b);
-t_vect			*vect_cross(t_vect *a, t_vect *b);
+int				vect_scalar(t_vect *a, double k, t_vect *prod);
+double			vect_dot(t_vect *a, t_vect *b);
+t_vect			vect_cross(t_vect *a, t_vect *b);
 void			delete_vect(t_vect **v);
 int				vect_lin(t_vect *a, t_vect *b);
-float			vect_norm(t_vect *v);
-float			distance_ptpt(t_vect *a, t_vect *b);
-float			distance_ptln(t_vect *a, t_vect *b, t_vect *normal);
-float			distance_ptp(t_vect *a, t_plane	*p);
+double			vect_norm(t_vect *v);
+double			distance_ptpt(t_vect *a, t_vect *b);
+double			distance_ptln(t_vect *a, t_vect *b, t_vect *normal);
+double			distance_ptp(t_vect *a, t_plane	*p);
 void			mid_point(t_vect *a, t_vect *b, t_vect *mid);
 void			normalize(t_vect *v);
 int				nullvect(t_vect *v);
-float			vect_len(t_vect *v);
+double			vect_len(t_vect *v);
 int				dist_cmp(t_vect *a, t_vect *b, t_vect *cntr);
-float			prjct_resolution(t_vect *a, t_vect *b);
+double			prjct_resolution(t_vect *a, t_vect *b);
 
 /**********matrices*****************/
 t_mat			*create_mat(int n, int m);
 void			delete_mat(t_mat **m);
 t_mat			*mat_sum(t_mat *a, t_mat *b);
 t_mat			*mat_diff(t_mat *a, t_mat *b);
-t_mat			*mat_scal(t_mat *a, float k);
+t_mat			*mat_scal(t_mat *a, double k);
 t_mat			*mat_mult(t_mat *a, t_mat *b);
-t_vect			*mat_vect(t_mat *a, t_vect *v);
-t_vect			*vect_mat(t_vect *v, t_mat *a);
+t_vect			mat_vect(t_mat *a, t_vect *v);
+t_vect			vect_mat(t_vect *v, t_mat *a);
 t_mat			*indentity(int n);
 t_mat			*transpose(t_mat *a);
 t_mat			*sub_mat(t_mat *a, int line, int col);
-float			det_mat(t_mat *a);
+double			det_mat(t_mat *a);
 t_mat			*rev_mat(t_mat *a);
 
 /**********colors*******************/
@@ -215,7 +228,7 @@ t_rgba			*new_color(int r, int g, int b);
 void			init_rgba(t_rgba *c);
 int				init_rgba_str(t_rgba *c, char *str);
 void			delete_color(t_rgba **c);
-void			set_alpha(t_rgba *c, float a);
+void			set_alpha(t_rgba *c, double a);
 void			add_colors(t_rgba *a, t_rgba *b, t_rgba *res);
 void			diff_colors(t_rgba *a, t_rgba *b, t_rgba *res);
 void			mult_colors(t_rgba *a, t_rgba *b, t_rgba *res);
@@ -244,6 +257,9 @@ void			delete_hyperloid(t_hyperbloid **h);
 t_quadric		*new_quadric(void);
 void			delete_quadric(t_quadric **q);
 	
+
+/*********camera*************/
+void			set_up_vect(t_camera *c);
 
 /*********init***************/
 t_canvas		*init_canvas(t_camera *c, int H, int W);
@@ -279,12 +295,12 @@ t_intrsct		*intr_quadric_vect(t_quadric *s, t_vect *v, t_camera *c);
 
 
 /**********transformations*******/
-t_mat			*translation_matrix(float x, float y, float z);
-t_mat			*scaling_matrix(float x, float y, float z);
-t_mat			*rotation_x(float deg);
-t_mat			*rotation_y(float deg);
-t_mat			*rotation_z(float deg);
-t_mat			*shearing(float prp[6]);
+t_mat			*translation_matrix(double x, double y, double z);
+t_mat			*scaling_matrix(double x, double y, double z);
+t_mat			*rotation_x(double deg);
+t_mat			*rotation_y(double deg);
+t_mat			*rotation_z(double deg);
+t_mat			*shearing(double prp[6]);
 t_mat			*rotation_matrix(void);
 
 

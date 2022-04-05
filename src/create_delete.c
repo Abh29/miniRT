@@ -7,7 +7,6 @@ t_shape			*new_shape(void)
 	out = malloc(sizeof(t_shape));
 	if (out == NULL)
 		ft_exit("Error : could not allocate memory\n", NULL, 1);
-	out->id = NULL;
 	out->shape = NULL;
 	return (out);
 }
@@ -16,24 +15,24 @@ void			delete_shape(t_shape **s)
 {
 	t_shape *sh;
 
-	if (s == NULL || *s == NULL || (*s)->id == NULL)
+	if (s == NULL || *s == NULL || (*s)->shape == NULL)
 		return ;
 	sh = *s;
-	if (ft_strcmp(sh->id, "L") == 0)
+	if (sh->id == E_LIGHT)
 		delete_light((t_light **) &(sh->shape));
-	else if (ft_strcmp(sh->id, "C") == 0)
+	else if (sh->id == E_CAMERA)
 		delete_camera((t_camera **) &sh->shape);
-	else if (ft_strcmp(sh->id, "A") == 0)
+	else if (sh->id == E_AMBIENT)
 		delete_ambient((t_ambient **) &sh->shape);
-	else if (ft_strcmp(sh->id, "sp") == 0)
+	else if (sh->id == E_SPHERE)
 		delete_sphere((t_sphere **) &sh->shape);
-	else if (ft_strcmp(sh->id, "pl") == 0)
+	else if (sh->id == E_PLANE)
 		delete_plane((t_plane **) &sh->shape);
-	else if (ft_strcmp(sh->id, "cy") == 0)
+	else if (sh->id == E_CYLINDER)
 		delete_cylinder((t_cylinder **) &sh->shape);
-	else if (ft_strcmp(sh->id, "hy") == 0)
+	else if (sh->id == E_HYPERBLOID)
 		delete_hyperloid((t_hyperbloid **) &sh->shape);
-	else if (ft_strcmp(sh->id, "qu") == 0)
+	else if (sh->id == E_QUADRATIC)
 		delete_quadric((t_quadric **) &sh->shape);
 	free(sh);
 }
@@ -48,7 +47,18 @@ t_camera	*new_camera(void)
 	out->fov = -1;
 	init_vect(&out->normal);
 	init_point(&out->pov);
+	set_up_vect(out);
 	return (out);
+}
+
+void	set_up_vect(t_camera *c)
+{
+	t_vect	v;
+	t_vect	right;
+
+	v = new_vect(0, 0, 1);
+	right = vect_cross(&c->normal, &v);
+	c->up = vect_cross(&c->normal, &right);
 }
 
 void			delete_camera(t_camera **c)

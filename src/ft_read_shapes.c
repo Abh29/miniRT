@@ -69,7 +69,7 @@ void			init_camera(t_shape *s, char **spt)
 
 	if (!s || !spt || !spt[0] || !spt[1] || !spt[2] || !spt[3])
 		ft_exit("Error : not enough info for ", "Camera !", 1);
-	s->id = ft_strdup(spt[0]);
+	s->id = E_CAMERA;
 	c = ft_allocate(1, sizeof(t_camera));
 	if (init_point_str(&c->pov, spt[1]) == 0)
 		ft_exit("Error : ill formed point ", "Camera pov !", 1);
@@ -87,7 +87,7 @@ void			init_light(t_shape *s, char **spt)
 
 	if (!s || !spt || !spt[0] || !spt[1] || !spt[2] || !spt[3])
 		ft_exit("Error : not enough info for ", "Light !", 1);
-	s->id = ft_strdup(spt[0]);
+	s->id = E_LIGHT;
 	l = new_light();
 	if (init_point_str(&l->center, spt[1]) == 0)
 		ft_exit("Error : ill formed point ", "Light pos !", 1);
@@ -105,7 +105,7 @@ void			init_ambient(t_shape *s, char **spt)
 
 	if (!s || !spt || !spt[0] || !spt[1] || !spt[2])
 		ft_exit("Error : not enough info for ", "Ambient !", 1);
-	s->id = ft_strdup(spt[0]);
+	s->id = E_AMBIENT;
 	l = new_ambient();
 	l->ratio = ft_atod(spt[1]);
 	if (l->ratio < 0 || l->ratio > 1)
@@ -121,7 +121,7 @@ void			init_sphere(t_shape *s, char **spt)
 
 	if (!s || !spt || !spt[0] || !spt[1] || !spt[2] || !spt[3])
 		ft_exit("Error : not enough info for ", "Sphere !", 1);
-	s->id = ft_strdup(spt[0]);
+	s->id = E_SPHERE;
 	l = new_sphere();
 	if (init_point_str(&l->center, spt[1]) == 0)
 		ft_exit("Error : ill formed point ", "Sphere center !", 1);
@@ -139,7 +139,7 @@ void			init_plane(t_shape *s, char **spt)
 
 	if (!s || !spt || !spt[0] || !spt[1] || !spt[2] || !spt[3])
 		ft_exit("Error : not enough info for ", "Plane !", 1);
-	s->id = ft_strdup(spt[0]);
+	s->id = E_PLANE;
 	l = new_plane();
 	if (init_point_str(&l->point, spt[1]) == 0)
 		ft_exit("Error : ill formed point ", "Plane !", 1);
@@ -156,7 +156,7 @@ void			init_cylinder(t_shape *s, char **spt)
 
 	if (!s || !spt || !spt[0] || !spt[1] || !spt[2] || !spt[3] || !spt[4] || !spt[5])
 		ft_exit("Error : not enough info for ", "Cylinder !", 1);
-	s->id = ft_strdup(spt[0]);
+	s->id = E_CYLINDER;
 	l = new_cylinder();
 	if (init_point_str(&l->center, spt[1]) == 0)
 		ft_exit("Error : ill formed point ", "Cylinder !", 1);

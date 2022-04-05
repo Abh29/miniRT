@@ -1,23 +1,20 @@
 #include "../mrt.h"
 
-t_vect	*new_vect(int x, int y, int z)
+t_vect	new_vect(int x, int y, int z)
 {
-	t_vect	*out;
+	t_vect	out;
 
-	out = malloc(sizeof(t_vect));
-	if (out == NULL)
-		ft_exit("Error : could not allocate memory !\n", NULL, 1);
-	write_vect(x, y, z, out);
-	out->w = 0;
+	write_vect(x, y, z, &out);
+	out.w = 0;
 	return (out);
 }
 
-t_vect	*new_point(int x, int y, int z)
+t_vect	new_point(int x, int y, int z)
 {
-	t_vect	*out;
+	t_vect	out;
 
 	out = new_vect(x, y, z);
-	out->w = 1;
+	out.w = 1;
 	return (out);
 }
 
@@ -86,7 +83,7 @@ int	vect_diff(t_vect *a, t_vect *b, t_vect *diff)
 	return (diff->w == 0 || diff->w == 1);
 }
 
-int	vect_scalar(t_vect *a, float k, t_vect *prod)
+int	vect_scalar(t_vect *a, double k, t_vect *prod)
 {
 	if (!a || !prod)
 		return (0);
@@ -97,21 +94,17 @@ int	vect_scalar(t_vect *a, float k, t_vect *prod)
 	return (is_vect(prod));
 }
 
-float	vect_dot(t_vect *a, t_vect *b)
+double	vect_dot(t_vect *a, t_vect *b)
 {
 	if (!a || !b)
 		return INT_MAX;
 	return (a->x * b->x + a->y * b->y + a->z * b->z);
 }
 
-t_vect	*vect_cross(t_vect	*a, t_vect *b)
+t_vect	vect_cross(t_vect	*a, t_vect *b)
 {
-	t_vect *out;
+	t_vect out;
 
-	if (a == NULL || b == NULL)
-		return (NULL);
-	if (is_point(a) || is_point(b))
-		return (NULL);
 	out = new_vect(a->y * b->z - a->z * b->y,
 					a->z * b->x - a->x * b->z,
 					a->x * b->y - a->y * a->y * b->x);
@@ -123,26 +116,26 @@ void	delete_vect(t_vect **v)
 	free(*v);
 }
 
-float	distance_ptpt(t_vect *a, t_vect *b)
+double	distance_ptpt(t_vect *a, t_vect *b)
 {
-	float out;
+	double out;
 
 	if (!a || !b)
 		return (INT_MAX);
-	out = powf(b->x - a->x, 2);
-	out += powf(b->y - a->y, 2);
-	out += powf(b->z - a->z, 2);
-	return (sqrtf(out));
+	out = pow(b->x - a->x, 2);
+	out += pow(b->y - a->y, 2);
+	out += pow(b->z - a->z, 2);
+	return (sqrt(out));
 }
 
-float	vect_norm(t_vect *v)
+double	vect_norm(t_vect *v)
 {
 	if (v == NULL)
 		return (INT_MAX);
-	return (sqrtf(v->x * v->x + v->y * v->y + v->z * v->z));
+	return (sqrt(v->x * v->x + v->y * v->y + v->z * v->z));
 }	
 
-float	distance_ptln(t_vect *a, t_vect *b, t_vect *normal)
+double	distance_ptln(t_vect *a, t_vect *b, t_vect *normal)
 {
 	t_vect diff;
 
@@ -152,9 +145,9 @@ float	distance_ptln(t_vect *a, t_vect *b, t_vect *normal)
 	return (vect_dot(&diff, normal) / vect_norm(normal));
 }
 
-float	distance_ptp(t_vect *a, t_plane	*p)
+double	distance_ptp(t_vect *a, t_plane	*p)
 {
-	float	out;
+	double	out;
 
 	if (!a || !p)
 		return (INT_MAX);
@@ -204,11 +197,10 @@ int			init_point_str(t_vect *v, char *str)
 
 void	normalize(t_vect *v)
 {
-	float	d;
+	double	d;
 
 	if (v == NULL || nullvect(v) || is_point(v))
 		return ;
-	vect_scalar(v, 10, v);
 	d = vect_len(v);
 	v->x /= d;
 	v->y /= d;
@@ -216,14 +208,11 @@ void	normalize(t_vect *v)
 }
 
 
-float	vect_len(t_vect *v)
+double	vect_len(t_vect *v)
 {
-	float	out;
+	double	out;
 
-	if (v == NULL || nullvect(v) || is_point(v))
-		return (0);
-	out = v->x * v->x + v->y * v->y + v->z + v->z;
-	out = sqrtf(out);
+	out = sqrt( v->x * v->x + v->y * v->y + v->z * v->z);
 	return (out);
 }
 
@@ -231,9 +220,9 @@ int				nullvect(t_vect *v)
 {
 	if (v == NULL)
 		return (1);
-	if (fabsf(v->x) < EPSILON)
-		if (fabsf(v->y) < EPSILON)
-			if (fabsf(v->z) < EPSILON)
+	if (fabs(v->x) < EPSILON)
+		if (fabs(v->y) < EPSILON)
+			if (fabs(v->z) < EPSILON)
 				return (1);
 	return (0);
 }
@@ -241,8 +230,8 @@ int				nullvect(t_vect *v)
 
 int	vect_lin(t_vect *a, t_vect *b)
 {
-	float t1;
-	float t2;
+	double t1;
+	double t2;
 
 	if (a == NULL || b == NULL)
 		return (1);
@@ -250,7 +239,7 @@ int	vect_lin(t_vect *a, t_vect *b)
 		return (1);
 	t1 = a->x * b->y - b->x * a->y;
 	t2 = a->x * b->z - b->x * a->z;
-	if (fabsf(t1) < EPSILON && fabs(t2) < EPSILON)
+	if (fabs(t1) < EPSILON && fabs(t2) < EPSILON)
 		return (1);
 	return (0);
 }
@@ -266,9 +255,9 @@ int	dist_cmp(t_vect *a, t_vect *b, t_vect *cntr)
 		return (-1);
 }
 
-float			prjct_resolution(t_vect *a, t_vect *b)
+double			prjct_resolution(t_vect *a, t_vect *b)
 {
-	float	out;
+	double	out;
 
 	if (!a || !b)
 		return (0);

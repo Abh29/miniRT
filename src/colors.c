@@ -47,7 +47,7 @@ void			delete_color(t_rgba **c)
 	free(*c);
 }
 
-void			set_alpha(t_rgba *c, float a)
+void			set_alpha(t_rgba *c, double a)
 {
 	if (c == NULL)
 		return ;

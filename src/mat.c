@@ -8,10 +8,10 @@ t_mat			*create_mat(int n, int m)
 	out = ft_allocate(1, sizeof(t_mat));
 	out->n = n;
 	out->m = m;
-	out->data = ft_allocate(n + 1, sizeof(float *));
+	out->data = ft_allocate(n + 1, sizeof(double *));
 	i = 0;
 	while (i < n)
-		out->data[i++] = ft_allocate(m , sizeof(float));
+		out->data[i++] = ft_allocate(m , sizeof(double));
 	out->data[i] = NULL;
 	return (out);
 }
@@ -79,7 +79,7 @@ t_mat			*mat_diff(t_mat *a, t_mat *b)
 	return (out);
 }
 
-t_mat			*mat_scal(t_mat *a, float k)
+t_mat			*mat_scal(t_mat *a, double k)
 {
 	t_mat	*out;
 	int		i;
@@ -133,35 +133,31 @@ t_mat			*mat_mult(t_mat *a, t_mat *b)
 	return (out);
 }
 
-t_vect			*mat_vect(t_mat *a, t_vect *v)
+t_vect		mat_vect(t_mat *a, t_vect *v)
 {
-	t_vect	*out;
-	float	**f;
+	t_vect	out;
+	double	**f;
 
-	if (!a || !v || a->n != 4 || a->m != 4)
-		return (NULL);
 	out = new_vect(0, 0, 0);
 	f = a->data;
-	out->x = f[0][0] * v->x + f[0][1] * v->y  + f[0][2] * v->z + f[0][3] * v->w;
-	out->y = f[1][0] * v->x + f[1][1] * v->y  + f[1][2] * v->z + f[1][3] * v->w;
-	out->z = f[2][0] * v->x + f[2][1] * v->y  + f[2][2] * v->z + f[2][3] * v->w;
-	out->w = f[3][0] * v->x + f[3][1] * v->y  + f[3][2] * v->z + f[3][3] * v->w;
+	out.x = f[0][0] * v->x + f[0][1] * v->y  + f[0][2] * v->z + f[0][3] * v->w;
+	out.y = f[1][0] * v->x + f[1][1] * v->y  + f[1][2] * v->z + f[1][3] * v->w;
+	out.z = f[2][0] * v->x + f[2][1] * v->y  + f[2][2] * v->z + f[2][3] * v->w;
+	out.w = f[3][0] * v->x + f[3][1] * v->y  + f[3][2] * v->z + f[3][3] * v->w;
 	return (out);
 }
 
-t_vect		*vect_mat(t_vect *v, t_mat *a)
+t_vect		vect_mat(t_vect *v, t_mat *a)
 {
-		t_vect	*out;
-	float	**f;
+	t_vect	out;
+	double	**f;
 
-	if (!a || !v || a->n != 4 || a->m != 4)
-		return (NULL);
 	out = new_vect(0, 0, 0);
 	f = a->data;
-	out->x = f[0][0] * v->x + f[1][0] * v->y  + f[2][0] * v->z + f[3][0] * v->w;
-	out->y = f[0][1] * v->x + f[1][1] * v->y  + f[2][1] * v->z + f[3][1] * v->w;
-	out->z = f[0][2] * v->x + f[1][2] * v->y  + f[2][2] * v->z + f[3][2] * v->w;
-	out->w = f[0][3] * v->x + f[1][3] * v->y  + f[2][3] * v->z + f[3][3] * v->w;
+	out.x = f[0][0] * v->x + f[1][0] * v->y  + f[2][0] * v->z + f[3][0] * v->w;
+	out.y = f[0][1] * v->x + f[1][1] * v->y  + f[2][1] * v->z + f[3][1] * v->w;
+	out.z = f[0][2] * v->x + f[1][2] * v->y  + f[2][2] * v->z + f[3][2] * v->w;
+	out.w = f[0][3] * v->x + f[1][3] * v->y  + f[2][3] * v->z + f[3][3] * v->w;
 	return (out);
 }
 
@@ -250,9 +246,9 @@ t_mat			*sub_mat(t_mat *a, int line, int col)
 	return (out);
 }
 
-float			det_mat(t_mat *a)
+double			det_mat(t_mat *a)
 {
-	float	det;
+	double	det;
 	t_mat	*tmp;
 	int		s;
 	int		i;
@@ -281,7 +277,7 @@ float			det_mat(t_mat *a)
 
 t_mat	*rev_mat(t_mat *a)
 {
-	float	det;
+	double	det;
 	t_mat	*out;
 	int		i;
 	int		j;
@@ -290,7 +286,7 @@ t_mat	*rev_mat(t_mat *a)
 	if (!a || a->n != a->m)
 		ft_exit("Error : inverse of non square matrix !\n", NULL, 1);
 	det = det_mat(a);
-	if (fabsf(det) < EPSILON)
+	if (fabs(det) < EPSILON)
 		ft_exit("Error : matrix in not inversible det = 0 !", NULL, 1);
 	out = create_mat(a->n, a->m);
 	i = 0;
@@ -300,7 +296,7 @@ t_mat	*rev_mat(t_mat *a)
 		while (j < a->m)
 		{
 			tmp = sub_mat(a, i, j);
-			out->data[i][j] = powf(-1, i + j) * det_mat(tmp) / det;
+			out->data[i][j] = pow(-1, i + j) * det_mat(tmp) / det;
 			delete_mat(&tmp);
 			j++;
 		}

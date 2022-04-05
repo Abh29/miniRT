@@ -1,6 +1,6 @@
 #include "../mrt.h"
 
-t_mat			*translation_matrix(float x, float y, float z)
+t_mat			*translation_matrix(double x, double y, double z)
 {
 	t_mat *out;
 
@@ -11,7 +11,7 @@ t_mat			*translation_matrix(float x, float y, float z)
 	return (out);
 }
 
-t_mat			*scaling_matrix(float x, float y, float z)
+t_mat			*scaling_matrix(double x, double y, double z)
 {
 	t_mat *out;
 
@@ -22,7 +22,7 @@ t_mat			*scaling_matrix(float x, float y, float z)
 	return (out);
 }
 
-t_mat			*rotation_x(float deg)
+t_mat			*rotation_x(double deg)
 {
 	double	rad;
 	t_mat	*out;
@@ -36,7 +36,7 @@ t_mat			*rotation_x(float deg)
 	return (out);
 }
 
-t_mat			*rotation_y(float deg)
+t_mat			*rotation_y(double deg)
 {
 	double	rad;
 	t_mat	*out;
@@ -50,7 +50,7 @@ t_mat			*rotation_y(float deg)
 	return (out);
 }
 
-t_mat			*rotation_z(float deg)
+t_mat			*rotation_z(double deg)
 {
 	double	rad;
 	t_mat	*out;
@@ -64,7 +64,7 @@ t_mat			*rotation_z(float deg)
 	return (out);
 }
 
-t_mat			*shearing(float prp[6])
+t_mat			*shearing(double prp[6])
 {
 	t_mat	*out;
 

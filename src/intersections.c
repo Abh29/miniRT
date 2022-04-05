@@ -9,6 +9,7 @@ t_intrsct	*new_intersection_point(void)
 	init_point(&out->point);
 	init_rgba(&out->color);
 	out->dist = 0;
+	out->s.shape = NULL;
 	return (out);
 }
 
@@ -36,17 +37,17 @@ t_intrsct	*intr_shape_vect(t_shape *s, t_vect *v, t_camera *c)
 
 	if (s == NULL || v == NULL || c == NULL)
 		return (NULL);
-	if (ft_strcmp(s->id, "L") == 0)
+	if (s->id == E_LIGHT)
 		out = intr_light_vect((t_light *)s->shape, v, c);
-	else if (ft_strcmp(s->id, "sp") == 0)
+	else if (s->id == E_SPHERE)
 		out = intr_sphere_vect((t_sphere *)s->shape, v, c);
-	else if (ft_strcmp(s->id, "pl") == 0)
+	else if (s->id == E_PLANE)
 		out = intr_plane_vect((t_plane *)s->shape, v, c);
-	else if (ft_strcmp(s->id, "cy") == 0)
+	else if (s->id == E_CYLINDER)
 		out = intr_cylinder_vect((t_cylinder *)s->shape, v, c);
-	else if (ft_strcmp(s->id, "hy") == 0)
+	else if (s->id == E_HYPERBLOID)
 		out = intr_hyperbloid_vect((t_hyperbloid *)s->shape, v, c);
-	else if (ft_strcmp(s->id, "qu") == 0)
+	else if (s->id == E_QUADRATIC)
 		out = intr_quadric_vect((t_quadric *)s->shape, v, c);
 	else
 		return (NULL);
@@ -69,15 +70,15 @@ t_intrsct	*intr_light_vect(t_light *s, t_vect *v, t_camera *c)
 
 void	solve_2deg_equ(t_2deg_equ *equ)
 {
-	float	t;
+	double	t;
 
 	if (equ == NULL)
 		return ;
 	equ->delta = equ->b * equ->b - 4 * equ->a * equ->c;
 	if (equ->delta >= 0)
 	{
-		equ->x1 = (-equ->b - sqrtf(equ->delta)) / (2 * equ->a);
-		t = (-equ->b + sqrtf(equ->delta)) / (2 * equ->a);
+		equ->x1 = (-equ->b - sqrtl(equ->delta)) / (2 * equ->a);
+		t = (-equ->b + sqrtl(equ->delta)) / (2 * equ->a);
 		if (equ->x1 > t && t > 0)
 		{
 			equ->x2 = equ->x1;
@@ -88,21 +89,19 @@ void	solve_2deg_equ(t_2deg_equ *equ)
 	}
 }
 
-float	descrimentant_sphere(t_sphere *s, t_vect *v, t_camera *cm, t_2deg_equ *equ)
+double	descrimentant_sphere(t_sphere *s, t_vect *v, t_camera *cm, t_2deg_equ *equ)
 {
-	t_vect	*direct;
+	t_vect	direct;
 
-	direct = new_vect(0, 0, 0);
-	vect_diff(&s->center, &cm->pov, direct);
+	vect_diff(&s->center, &cm->pov, &direct);
 	equ->a = vect_dot(v, v);
-	equ->b = 2 * vect_dot(v, direct);
-	equ->c = vect_dot(direct, direct) - s->diam * s->diam;
-	delete_vect(&direct);
+	equ->b = 2 * vect_dot(v, &direct);
+	equ->c = vect_dot(&direct, &direct) - s->diam * s->diam;
 	solve_2deg_equ(equ);
 	return (equ->delta);
 }
 
-t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_sphere_vect2(t_sphere *s, t_vect *v, t_camera *c)
 {
 	t_2deg_equ	equ;
 	t_intrsct	*out;
@@ -122,12 +121,40 @@ t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 	return (out);
 }
 
+t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
+{
+	t_2deg_equ	equ;
+	t_intrsct	*out;
+	t_vect	diff;
+	double	p;
+	double	diss;
+
+	vect_diff(&c->pov, &s->center, &diff);
+	p = vect_dot(v, &diff);
+	diss = vect_dot(&diff, &diff) - s->diam * s->diam;
+	diss = p * p - diss;
+	if (diss < 0)
+		return (NULL);
+	diss = sqrt(diss);
+	equ.x1 = -p - diss;
+	equ.x2 = -p + diss;
+	if (equ.x1 < 0 && equ.x2 < 0)
+		return (NULL);
+	if (equ.x2 < equ.x1 && equ.x2 > 0)
+		equ.x1 = equ.x2;
+	out = new_intersection_point();
+	out->dist = equ.x1;
+	out->s.shape = s;
+	out->s.id = E_SPHERE;
+	return (out);
+}
+
 t_intrsct	*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c)
 {
 	t_intrsct	*out;
-	float		denom;
+	double		denom;
 	t_vect		p;
-	float		t;
+	double		t;
 
 	if (vect_lin(&s->normal, v))
 		return (NULL);
@@ -145,10 +172,10 @@ t_intrsct	*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c)
 	return (out);
 }
 
-t_intrsct	*intr_disk_vect(t_plane *s, t_vect *v, t_camera *c, float diam)
+t_intrsct	*intr_disk_vect(t_plane *s, t_vect *v, t_camera *c, double diam)
 {
 	t_intrsct	*out;
-	float		tmp;
+	double		tmp;
 
 	if (diam < EPSILON)
 		return (NULL);
@@ -164,10 +191,10 @@ t_intrsct	*intr_disk_vect(t_plane *s, t_vect *v, t_camera *c, float diam)
 	return (out);
 }
 
-float	descrimentant_cylinder(t_cylinder *s, t_vect *v, t_camera *c, t_2deg_equ *equ)
+double	descrimentant_cylinder(t_cylinder *s, t_vect *v, t_camera *c, t_2deg_equ *equ)
 {
 	t_vect	tmpv;
-	float	tmpf;
+	double	tmpf;
 	t_vect	tmpv2;
 	t_vect	p;
 
@@ -209,9 +236,9 @@ t_intrsct	*intr_side_cylinder(t_cylinder *s, t_vect *v, t_camera *c)
 	t_2deg_equ	equ;
 	t_vect		x;
 	t_vect		tmp;
-	float		d;
+	double		d;
 
-	if (fabsf(descrimentant_cylinder(s, v, c, &equ)) < EPSILON || (equ.x1 < 0 && equ.x2 < 0))
+	if (fabs(descrimentant_cylinder(s, v, c, &equ)) < EPSILON || (equ.x1 < 0 && equ.x2 < 0))
 		return (NULL);
 	vect_scalar(v, equ.x1, &x);
 	vect_sum(&c->pov, &x, &x);

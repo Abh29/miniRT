@@ -7,7 +7,7 @@ void			print_vect(t_vect *v)
 		printf("(null_vect)\n");
 	else
 	{
-		printf("( %.2f, %.2f, %.2f) ", v->x, v->y, v->z);
+		printf("( %.2lf, %.2lf, %.2lf) ", v->x, v->y, v->z);
 		printf("%s\n", v->w == 0 ? "vector" : "point");
 	}
 }
@@ -23,7 +23,7 @@ void			print_mat(t_mat *m)
 	{
 		for (int j = 0; j < m->m; j++)
 		{
-			printf(" %5.2f |", m->data[i][j]);
+			printf(" %5.2lf |", m->data[i][j]);
 		}
 		printf("\n");
 	}
@@ -41,7 +41,7 @@ void			scan_mat(t_mat *m)
 		for (int j = 0; j < m->m; j++)
 		{
 			printf("\n%d , %d : ", i, j);
-			scanf("%f", &m->data[i][j]);
+			scanf("%lf", &m->data[i][j]);
 		}
 	}
 }
@@ -52,7 +52,7 @@ void			scan_vect(t_vect *v)
 		printf("(null_vect)\n");
 	else
 	{
-		scanf("%f%f%f", &v->x, &v->y, &v->z);
+		scanf("%lf%lf%lf", &v->x, &v->y, &v->z);
 		scanf("%hhd", &v->w);
 		printf("%s", v->w == 0 ? "vector" : "point");
 	}
