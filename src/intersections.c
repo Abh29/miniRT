@@ -7,9 +7,9 @@ void	init_phong(t_phong *ph)
 	init_rgba(&ph->ambient);
 	init_rgba(&ph->diffuse.color);
 	init_rgba(&ph->specular.color);
-	ph->roughness = 30;
-	ph->diffuse.ratio = 0.1;
-	ph->specular.ratio = 0.5;
+	ph->roughness = 50;
+	ph->diffuse.ratio = 1;
+	ph->specular.ratio = 0.4;
 }
 
 t_intrsct	*new_intersection_point(void)
@@ -50,7 +50,7 @@ t_intrsct	*intr_shape_vect(t_shape *s, t_vect *v, t_camera *c)
 
 	if (s == NULL || v == NULL || c == NULL)
 		return (NULL);
-
+	out = NULL;
 	if (s->id == E_SPHERE)
 		out = intr_sphere_vect((t_sphere *)s->shape, v, c);
 	else if (s->id == E_PLANE)
@@ -61,8 +61,6 @@ t_intrsct	*intr_shape_vect(t_shape *s, t_vect *v, t_camera *c)
 		out = intr_hyperbloid_vect((t_hyperbloid *)s->shape, v, c);
 	else if (s->id == E_QUADRATIC)
 		out = intr_quadric_vect((t_quadric *)s->shape, v, c);
-	else
-		return (NULL);
 	return (out);
 }
 
@@ -114,7 +112,7 @@ double	descrimentant_sphere(t_sphere *s, t_vect *v, t_camera *cm, t_2deg_equ *eq
 	return (equ->delta);
 }
 
-t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_sphere_vect1(t_sphere *s, t_vect *v, t_camera *c)
 {
 	t_2deg_equ	equ;
 	t_intrsct	*out;
@@ -164,7 +162,7 @@ t_intrsct	*intr_sphere_vect2(t_sphere *s, t_vect *v, t_camera *c)
 }
 
 
-t_intrsct	*intr_sphere_vect4(t_sphere *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 {
 	t_intrsct	*out;
 	t_vect diff;

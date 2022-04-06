@@ -18,6 +18,8 @@
 
 #define EPSILON   1e-8
 
+#define CAST_SHADOWS	0
+
 typedef struct	s_vect {
 	double	x;
 	double	y;
@@ -135,10 +137,10 @@ typedef struct  s_intrsct {
 	t_vect	normal;
 	t_vect	eye;
 	t_vect	reflect;
+	t_vect	lightv;
 	t_rgba	color;
 	double	dist;
 	t_shape	s;
-	t_illm	*illm;
 	t_phong	phong;
 }	t_intrsct;
 
@@ -206,6 +208,7 @@ int				init_vect_str(t_vect *v, char *str);
 int				init_point_str(t_vect *v, char *str);
 int				is_vect(t_vect *v);
 int				is_point(t_vect *v);
+void			vect_cpy(t_vect *src, t_vect *dst);
 void			write_vect(double x, double y, double z, t_vect *v);
 void			write_point(double x, double y, double z, t_vect *p);
 int				vect_sum(t_vect *a, t_vect *b, t_vect *sum);

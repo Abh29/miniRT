@@ -103,9 +103,9 @@ void	init_black_pixel(t_pixel *p, int x, int y)
 	if (!p)
 		return ;
 	alter_color(&p->color, 0, 0, 0);
-	set_alpha(&p->color, 0);
+	set_alpha(&p->color, 1);
 	alter_color(&p->reflection, 0, 0, 0);
-	set_alpha(&p->reflection, 0);
+	set_alpha(&p->reflection, 1);
 	p->x = x;
 	p->y = y;
 }

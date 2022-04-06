@@ -48,6 +48,7 @@ void	set_phong_ambient(t_intrsct *p, t_dlist **lst)
 		p->phong.ambient.r = p->color.r * l->color.r / 255 * l->ratio;
 		p->phong.ambient.g = p->color.g * l->color.g / 255 * l->ratio;
 		p->phong.ambient.b = p->color.b * l->color.b / 255 * l->ratio;
+		p->phong.ambient.a = 1;
 	}
 	//free(*lst); // free content ?
 }
@@ -87,6 +88,8 @@ void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c)
 				set_phong_ambient(itr, &amb);
 				ft_shade(itr, light, lst);
 				color_cpy(&itr->phong.diffuse.color, &cnv->pixels[i][j].color);
+				add_colors(&itr->phong.ambient, &cnv->pixels[i][j].color, &cnv->pixels[i][j].color);
+				add_colors(&itr->phong.specular.color, &cnv->pixels[i][j].color, &cnv->pixels[i][j].color);
 				delete_intersection_point(&itr);
 			}
 		}
@@ -107,7 +110,6 @@ void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 		s = p->s.shape;
 		vect_diff(&p->point, &s->center, &p->normal);
 		normalize(&p->normal);
-		vect_reflect(&p->eye, &p->normal, &p->reflect);
 		color_cpy(&p->color, &((t_sphere *)(p->s.shape))->color);
 	}
 	else if (p->s.id == E_PLANE)
@@ -145,32 +147,37 @@ void	ft_shade(t_intrsct *p, t_dlist *light, t_dlist *obj)
 	{
 		l = (t_light *)((t_shape *)light->content)->shape;
 		vect_diff(&l->center, &p->point, &c.normal);
-		write_point(p->point.x, p->point.y, p->point.z, &c.pov);
+		vect_cpy(&p->point, &c.pov);
+		vect_scalar(&c.normal, -1, &p->lightv);
+		vect_reflect(&p->lightv, &p->normal, &p->reflect);
+		normalize(&p->lightv);
+		normalize(&p->reflect);
+		normalize(&c.normal);
 		tmpo = obj;(void)tmpo;
 		itr = NULL;(void)itr;(void)tmp;
-		// while (tmpo)
-		// {
-		// 		tmp = intr_shape_vect(tmpo->content, &c.normal, &c);
-		// 		if (tmp && !itr && tmp->dist > EPSILON)
-		// 			itr = tmp;
-		// 		else if (tmp && tmp->dist < itr->dist && tmp->dist > EPSILON)
-		// 		{
-		// 			delete_intersection_point(&itr);
-		// 			itr = tmp;
-		// 		}else if (tmp)
-		// 			delete_intersection_point(&tmp);
-		// 		tmpo = tmpo->next;
-		// }
+		while (tmpo)
+		{
+				tmp = intr_shape_vect(tmpo->content, &c.normal, &c);
+				if (tmp && !itr && tmp->dist > EPSILON)
+					itr = tmp;
+				else if (tmp && itr && tmp->dist < itr->dist && tmp->dist > EPSILON)
+				{
+					delete_intersection_point(&itr);
+					itr = tmp;
+				}else if (tmp)
+					delete_intersection_point(&tmp);
+				tmpo = tmpo->next;
+		}
 		if (itr == NULL)
 		{
-			dot_l_n = vect_dot(&c.normal, &p->normal); // c normal is the light vect
+			dot_l_n = vect_dot(&c.normal, &p->normal);
 			if (dot_l_n > EPSILON)
 			{
-				p->phong.diffuse.color.r += p->color.r * p->phong.diffuse.ratio * dot_l_n;
-				p->phong.diffuse.color.g += p->color.g * p->phong.diffuse.ratio * dot_l_n;
-				p->phong.diffuse.color.b += p->color.b * p->phong.diffuse.ratio * dot_l_n;
+				p->phong.diffuse.color.r += p->color.r * p->phong.diffuse.ratio * dot_l_n * l->color.r / 255 * l->ratio;
+				p->phong.diffuse.color.g += p->color.g * p->phong.diffuse.ratio * dot_l_n * l->color.g / 255 * l->ratio;
+				p->phong.diffuse.color.b += p->color.b * p->phong.diffuse.ratio * dot_l_n * l->color.b / 255 * l->ratio;
 				dot_r_e = vect_dot(&p->reflect, &p->eye);
-				if (dot_r_e > 0)
+				if (dot_r_e < EPSILON)
 				{
 					factor = pow(dot_r_e, p->phong.roughness);
 					p->phong.specular.color.r += l->color.r * p->phong.specular.ratio * l->ratio * factor;
@@ -179,6 +186,11 @@ void	ft_shade(t_intrsct *p, t_dlist *light, t_dlist *obj)
 				}
 			}
 		}
+		else
+			delete_intersection_point(&itr);
+		p->phong.ambient.r *= l->color.r / 255 * l->ratio;
+		p->phong.ambient.g *= l->color.g / 255 * l->ratio;
+		p->phong.ambient.b *= l->color.b / 255 * l->ratio;
 		light = light->next;
 	}
 }

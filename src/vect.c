@@ -291,10 +291,22 @@ double			prjct_resolution(t_vect *a, t_vect *b)
 
 void			vect_reflect(t_vect *in, t_vect *normal, t_vect *reflect)
 {
-	t_vect tmp;
+	double dot;
 
 	if (!in || ! normal || !reflect)
 		return ;
-	vect_scalar(normal, 2 * vect_dot(normal, in), &tmp);
-	vect_diff(in, &tmp, reflect);
+	dot = vect_dot(in, normal);
+	reflect->x = in->x - 2 * normal->x * dot;
+	reflect->y = in->y - 2 * normal->y * dot;
+	reflect->z = in->z - 2 * normal->z * dot;
+}
+
+void			vect_cpy(t_vect *src, t_vect *dst)
+{
+	if (src == NULL || dst == NULL)
+		return ;
+	dst->x = src->x;
+	dst->y = src->y;
+	dst->z = src->z;
+	dst->w = src->w;
 }

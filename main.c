@@ -57,38 +57,9 @@ int	main(int argc, char **argv)
 	print_vect(&c->normal);
 	print_vect(&c->up);
 	print_vect(&c->right);
-	// t_sphere sp;
-	// write_vect(10, 0, 0, &sp.center);
-	// sp.center.w = 1;
-	// sp.diam = 2;
-	// alter_color(&sp.color, 255, 0, 0);
-	// (void)sp;
-
-	// t_shape s;
-	// s.id = E_SPHERE;
-	// s.shape = &sp;
-
-	// t_sphere sp2;
-	// write_vect(15, 0, 5, &sp2.center);
-	// sp2.center.w = 1;
-	// sp2.diam = 2;
-	// alter_color(&sp2.color, 0, 0, 255);
-	// (void)sp2;
-
-	// t_shape s2;
-	// s2.id = E_SPHERE;
-	// s2.shape = &sp2;
-	// (void)s2;
-
-//	ft_dlstadd_back(&obj, ft_dlstnew(&s));
-//	ft_dlstadd_back(&obj, ft_dlstnew(&s2));
-
-
-	// t_vect v = new_vect(1, 0, 0);
-	// printf("ïntersect %p\n", intr_shape_vect(&s, &v, c));
 
 	printf("init canvas done ! \n");
-	getchar();
+	//getchar();
 
 	data.mlx = mlx_init();
 	data.window = mlx_new_window(data.mlx, 1000, 1000, "miniRT");
