@@ -51,20 +51,19 @@ int	main(int argc, char **argv)
 	c = get_camera(obj);
 	if (c == NULL)
 		ft_exit("no camera !\n", NULL, 1);
-	t_canvas *cnv = init_canvas(c, 1000, 1000);
-
+	
+	data.mlx = mlx_init();
+	data.window = mlx_new_window(data.mlx, 1920, 1080, "miniRT");
+	data.img =  mlx_new_image(data.mlx, 1920, 1080);
+	data.addr = mlx_get_data_addr(data.img, &data.bpp, &data.line_length, &data.endian);
+//	getchar();
+	t_canvas *cnv = init_canvas(c, 1920, 1080);
 	printf("camera : \n");
 	print_vect(&c->normal);
 	print_vect(&c->up);
 	print_vect(&c->right);
-
 	printf("init canvas done ! \n");
 	//getchar();
-
-	data.mlx = mlx_init();
-	data.window = mlx_new_window(data.mlx, 1000, 1000, "miniRT");
-	data.img =  mlx_new_image(data.mlx, 1000, 1000);
-	data.addr = mlx_get_data_addr(data.img, &data.bpp, &data.line_length, &data.endian);
 	cast_rays(cnv, obj, c);
 	printf("ray casting done !\n");
 //	getchar();

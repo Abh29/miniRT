@@ -1,5 +1,21 @@
 #include "../mrt.h"
 
+sem_t count;
+int n_count = 0;
+typedef struct casting
+{
+	t_canvas	*cnv;
+	t_camera	*c;
+	t_dlist		*objs;
+	t_dlist		*lights;
+	t_dlist		*ambient;
+	int			s_w;
+	int			e_w;
+	int			s_h;
+	int			e_h;
+}	t_casting_args;
+
+
 t_dlist	*get_lights(t_dlist *lst)
 {
 	t_dlist *out;
@@ -53,25 +69,23 @@ void	set_phong_ambient(t_intrsct *p, t_dlist **lst)
 	//free(*lst); // free content ?
 }
 
-void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c)
+void	*cast_one_ray(void	*args)
 {
-	t_intrsct	*itr, *tmp;
-	t_dlist		*p, *light, *amb;
-	
-	if (lst == NULL || lst->content == NULL)
-		return ;
-	light = get_lights(lst);(void)light;
-	amb = get_ambient(lst);(void)amb;
-	p = lst;
-	for (int i = 0; i < cnv->height; i++)
+	t_casting_args	*a;
+	t_intrsct		*itr;
+	t_intrsct		*tmp;
+	t_dlist			*p;
+
+	a = (t_casting_args *)args;
+	for (int i = a->s_h; i < a->e_h; i++)
 	{
-		for (int j = 0; j < cnv->width; j++)
+		for (int j = a->s_w; j < a->e_w; j++)
 		{
-			p = lst;
+			p = a->objs;
 			itr = NULL;
 			while (p)
 			{
-				tmp = intr_shape_vect(p->content, &cnv->cast_rays[i][j], c);
+				tmp = intr_shape_vect(p->content, &a->cnv->cast_rays[i][j], a->c);
 				if (tmp && !itr && tmp->dist > EPSILON)
 					itr = tmp;
 				else if (tmp && tmp->dist < itr->dist && tmp->dist > EPSILON)
@@ -84,16 +98,50 @@ void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c)
 			}
 			if (itr)
 			{
-				get_intersection_info(itr, &cnv->cast_rays[i][j], c);
-				set_phong_ambient(itr, &amb);
-				ft_shade(itr, light, lst);
-				color_cpy(&itr->phong.diffuse.color, &cnv->pixels[i][j].color);
-				add_colors(&itr->phong.ambient, &cnv->pixels[i][j].color, &cnv->pixels[i][j].color);
-				add_colors(&itr->phong.specular.color, &cnv->pixels[i][j].color, &cnv->pixels[i][j].color);
+				get_intersection_info(itr, &a->cnv->cast_rays[i][j], a->c);
+				set_phong_ambient(itr, &a->ambient);
+				ft_shade(itr, a->lights, a->objs);
+				color_cpy(&itr->phong.diffuse.color, &a->cnv->pixels[i][j].color);
+				add_colors(&itr->phong.ambient, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
+				add_colors(&itr->phong.specular.color, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
 				delete_intersection_point(&itr);
 			}
 		}
 	}
+	return (NULL);
+}
+
+void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c)
+{
+	t_dlist			*light, *amb;
+	t_casting_args	*a;
+	pthread_t		pid[16];
+	
+	if (lst == NULL || lst->content == NULL)
+		return ;
+	light = get_lights(lst);(void)light;
+	amb = get_ambient(lst);(void)amb;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			a = ft_allocate(1, sizeof(t_casting_args));
+			a->cnv = cnv;
+			a->ambient = amb;
+			a->lights = light;
+			a->c = c;
+			a->objs = lst;
+			a->s_h =  i * cnv->height / 4;
+			a->e_h = (i + 1) * cnv->height / 4;
+			a->s_w =  j * cnv->width / 4;
+			a->e_w = (j + 1) * cnv->width / 4;
+			pthread_create(&pid[i * 4 + j], NULL, cast_one_ray, a);
+		//	cast_one_ray(a);
+		}
+	}
+	printf("done casting threads\n");
+	for (int i = 0; i < 16; i++)
+		pthread_join(pid[i], NULL);
 }
 
 void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)

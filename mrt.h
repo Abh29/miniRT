@@ -15,6 +15,12 @@
 # include <fcntl.h>
 # include <math.h>
 # include <mlx.h>
+# include <pthread.h>
+# include <fcntl.h>
+# include <sys/stat.h>
+# include <semaphore.h>
+# include <signal.h>
+# include <sys/wait.h>
 
 #define EPSILON   1e-8
 

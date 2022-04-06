@@ -6,7 +6,7 @@ BSRC :=	$(SRC)
 
 CC = gcc
 
-FLGS = -Wall -Werror -Wextra -Imlx  -g -lm
+FLGS = -Wall -Werror -Wextra -Imlx  -g -lm -lpthread -lrt
 FRMWK = -Lmlx_linux -lmlx_linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz
 VALGFLGS = --vgdb=full --leak-check=full -s -q
 FBSIZE =	-D BUFFER_SIZE=42
