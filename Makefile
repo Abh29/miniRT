@@ -63,7 +63,9 @@ debug: $(SRC) $(HEADER) $(LIBFT)
 valgrind: $(NAME)
 	@valgrind $(VALGFLGS) ./$(NAME) $(TARGS)
 
-
+iris:	FLGS += -D __IRIS
+iris: 	all
+	
 .PHONY: all clean fclean bonus so re test
 
 #&.c : &.o libft.a 

@@ -1,5 +1,17 @@
 #include "../mrt.h"
 
+void	init_phong(t_phong *ph)
+{
+	if (ph == NULL)
+		return ;
+	init_rgba(&ph->ambient);
+	init_rgba(&ph->diffuse.color);
+	init_rgba(&ph->specular.color);
+	ph->roughness = 30;
+	ph->diffuse.ratio = 0.1;
+	ph->specular.ratio = 0.5;
+}
+
 t_intrsct	*new_intersection_point(void)
 {
 	t_intrsct	*out;
@@ -8,6 +20,7 @@ t_intrsct	*new_intersection_point(void)
 	init_vect(&out->normal);
 	init_point(&out->point);
 	init_rgba(&out->color);
+	init_phong(&out->phong);
 	out->dist = 0;
 	out->s.shape = NULL;
 	return (out);
@@ -37,9 +50,8 @@ t_intrsct	*intr_shape_vect(t_shape *s, t_vect *v, t_camera *c)
 
 	if (s == NULL || v == NULL || c == NULL)
 		return (NULL);
-	if (s->id == E_LIGHT)
-		out = intr_light_vect((t_light *)s->shape, v, c);
-	else if (s->id == E_SPHERE)
+
+	if (s->id == E_SPHERE)
 		out = intr_sphere_vect((t_sphere *)s->shape, v, c);
 	else if (s->id == E_PLANE)
 		out = intr_plane_vect((t_plane *)s->shape, v, c);
@@ -59,6 +71,7 @@ t_intrsct	*intr_light_vect(t_light *s, t_vect *v, t_camera *c)
 	t_sphere	*tmp;
 	t_intrsct	*out;
 
+	return (NULL);
 	tmp = new_sphere();
 	tmp->center = s->center;
 	tmp->color = s->color;
@@ -93,7 +106,7 @@ double	descrimentant_sphere(t_sphere *s, t_vect *v, t_camera *cm, t_2deg_equ *eq
 {
 	t_vect	direct;
 
-	vect_diff(&s->center, &cm->pov, &direct);
+	vect_diff(&cm->pov, &s->center, &direct);
 	equ->a = vect_dot(v, v);
 	equ->b = 2 * vect_dot(v, &direct);
 	equ->c = vect_dot(&direct, &direct) - s->diam * s->diam;
@@ -101,7 +114,7 @@ double	descrimentant_sphere(t_sphere *s, t_vect *v, t_camera *cm, t_2deg_equ *eq
 	return (equ->delta);
 }
 
-t_intrsct	*intr_sphere_vect2(t_sphere *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 {
 	t_2deg_equ	equ;
 	t_intrsct	*out;
@@ -112,16 +125,17 @@ t_intrsct	*intr_sphere_vect2(t_sphere *s, t_vect *v, t_camera *c)
 	if (equ.x1 < 0 && equ.x2 < 0)
 		return (NULL);
 	out = new_intersection_point();
+	out->dist = equ.x1;
 	vect_scalar(v, equ.x1, &p);
 	vect_sum(&c->pov, &p, &out->point);
 	vect_diff(&out->point, &s->center, &out->normal);
 	normalize(&out->normal);
 	color_cpy(&s->color, &out->color);
-	out->dist = distance_ptpt(&c->pov, &out->point);
+//	out->dist = distance_ptpt(&c->pov, &out->point);
 	return (out);
 }
 
-t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_sphere_vect2(t_sphere *s, t_vect *v, t_camera *c)
 {
 	t_2deg_equ	equ;
 	t_intrsct	*out;
@@ -131,7 +145,7 @@ t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 
 	vect_diff(&c->pov, &s->center, &diff);
 	p = vect_dot(v, &diff);
-	diss = vect_dot(&diff, &diff) - s->diam * s->diam;
+	diss = vect_dot(&diff, &diff) - (s->diam * s->diam);
 	diss = p * p - diss;
 	if (diss < 0)
 		return (NULL);
@@ -146,6 +160,31 @@ t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 	out->dist = equ.x1;
 	out->s.shape = s;
 	out->s.id = E_SPHERE;
+	return (out);
+}
+
+
+t_intrsct	*intr_sphere_vect4(t_sphere *s, t_vect *v, t_camera *c)
+{
+	t_intrsct	*out;
+	t_vect diff;
+	t_vect t;
+	double d_c;
+	double d_t;
+	
+	vect_diff(&s->center, &c->pov, &diff);
+	d_t = vect_dot(&diff, v);
+	if (d_t < 0)
+		return (NULL);
+	t = new_point(v->x * d_t + c->pov.x, v->y * d_t + c->pov.y, v->z * d_t + c->pov.z);
+	d_c = distance_ptpt(&s->center, &t);
+	if (d_c > s->diam)
+		return (NULL);
+	out = new_intersection_point();
+	out->dist = d_t - sqrt(s->diam * s->diam - d_c * d_c);
+	out->s.shape = s;
+	out->s.id = E_SPHERE;
+	color_cpy(&s->color, &out->color); // delete this
 	return (out);
 }
 

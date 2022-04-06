@@ -1,6 +1,6 @@
 #include "../mrt.h"
 
-t_vect	new_vect(int x, int y, int z)
+t_vect	new_vect(double x, double y, double z)
 {
 	t_vect	out;
 
@@ -9,7 +9,7 @@ t_vect	new_vect(int x, int y, int z)
 	return (out);
 }
 
-t_vect	new_point(int x, int y, int z)
+t_vect	new_point(double x, double y, double z)
 {
 	t_vect	out;
 
@@ -52,13 +52,24 @@ int		is_vect(t_vect *v)
 	return (v->w == 0);
 }
 
-void	write_vect(int x, int y, int z, t_vect *v)
+void	write_vect(double x, double y, double z, t_vect *v)
 {
 	if (v == NULL)
 		return;
 	v->x = x;
 	v->y = y;
 	v->z = z;
+	v->w = 0;
+}
+
+void	write_point(double x, double y, double z, t_vect *v)
+{
+	if (v == NULL)
+		return;
+	v->x = x;
+	v->y = y;
+	v->z = z;
+	v->w = 1;
 }
 
 int	vect_sum(t_vect *a, t_vect *b, t_vect *sum)
@@ -107,8 +118,17 @@ t_vect	vect_cross(t_vect	*a, t_vect *b)
 
 	out = new_vect(a->y * b->z - a->z * b->y,
 					a->z * b->x - a->x * b->z,
-					a->x * b->y - a->y * a->y * b->x);
+					a->x * b->y - a->y * b->x);
 	return (out);
+}
+
+void	vect_cross2(t_vect	*a, t_vect *b, t_vect *out)
+{
+	
+	write_vect(a->y * b->z - a->z * b->y,
+					a->z * b->x - a->x * b->z,
+					a->x * b->y - a->y * b->x, out);
+	out->w = 0;
 }
 
 void	delete_vect(t_vect **v)
@@ -122,9 +142,9 @@ double	distance_ptpt(t_vect *a, t_vect *b)
 
 	if (!a || !b)
 		return (INT_MAX);
-	out = pow(b->x - a->x, 2);
-	out += pow(b->y - a->y, 2);
-	out += pow(b->z - a->z, 2);
+	out = (b->x - a->x) * (b->x - a->x);
+	out += (b->y - a->y) * (b->y - a->y);
+	out += (b->z - a->z) * (b->z - a->z);
 	return (sqrt(out));
 }
 
@@ -202,6 +222,8 @@ void	normalize(t_vect *v)
 	if (v == NULL || nullvect(v) || is_point(v))
 		return ;
 	d = vect_len(v);
+	if (d < EPSILON)
+		return ;
 	v->x /= d;
 	v->y /= d;
 	v->z /= d;
@@ -265,4 +287,14 @@ double			prjct_resolution(t_vect *a, t_vect *b)
 		return (0);
 	out = vect_dot(a, b) / vect_dot(b, b);
 	return (out);
+}
+
+void			vect_reflect(t_vect *in, t_vect *normal, t_vect *reflect)
+{
+	t_vect tmp;
+
+	if (!in || ! normal || !reflect)
+		return ;
+	vect_scalar(normal, 2 * vect_dot(normal, in), &tmp);
+	vect_diff(in, &tmp, reflect);
 }

@@ -16,7 +16,7 @@
 # include <math.h>
 # include <mlx.h>
 
-#define EPSILON   1e-6
+#define EPSILON   1e-8
 
 typedef struct	s_vect {
 	double	x;
@@ -52,6 +52,15 @@ typedef struct s_ambiant {
 	double	ratio;
 	t_rgba	color;
 }	t_ambient;
+
+
+typedef struct s_phong
+{
+	t_rgba		ambient;
+	t_ambient	diffuse;
+	t_ambient	specular;
+	double		roughness;
+}		t_phong;
 
 
 typedef struct s_light {
@@ -114,12 +123,23 @@ typedef struct s_quadric {
 	t_rgba	color;
 }	t_quadric;
 
+typedef	struct	s_illumination {
+	t_rgba	light;
+	t_rgba	reflection;
+	t_rgba	refraction;
+	t_rgba	ambient;
+}	t_illm;
+
 typedef struct  s_intrsct {
 	t_vect	point;
 	t_vect	normal;
+	t_vect	eye;
+	t_vect	reflect;
 	t_rgba	color;
 	double	dist;
 	t_shape	s;
+	t_illm	*illm;
+	t_phong	phong;
 }	t_intrsct;
 
 
@@ -178,20 +198,22 @@ void			ft_free_split(char ***split);
 
 
 /*********vecters************/
-t_vect			new_vect(int x, int y, int z);
-t_vect			new_point(int x, int y, int z);
+t_vect			new_vect(double x, double y, double z);
+t_vect			new_point(double x, double y, double z);
 void			init_vect(t_vect *v);
 void			init_point(t_vect *v);
 int				init_vect_str(t_vect *v, char *str);
 int				init_point_str(t_vect *v, char *str);
 int				is_vect(t_vect *v);
 int				is_point(t_vect *v);
-void			write_vect(int x, int y, int z, t_vect *v);
+void			write_vect(double x, double y, double z, t_vect *v);
+void			write_point(double x, double y, double z, t_vect *p);
 int				vect_sum(t_vect *a, t_vect *b, t_vect *sum);
 int				vect_diff(t_vect *a, t_vect *b, t_vect *diff);
 int				vect_scalar(t_vect *a, double k, t_vect *prod);
 double			vect_dot(t_vect *a, t_vect *b);
 t_vect			vect_cross(t_vect *a, t_vect *b);
+void			vect_cross2(t_vect *a, t_vect *b, t_vect *out);
 void			delete_vect(t_vect **v);
 int				vect_lin(t_vect *a, t_vect *b);
 double			vect_norm(t_vect *v);
@@ -204,6 +226,7 @@ int				nullvect(t_vect *v);
 double			vect_len(t_vect *v);
 int				dist_cmp(t_vect *a, t_vect *b, t_vect *cntr);
 double			prjct_resolution(t_vect *a, t_vect *b);
+void			vect_reflect(t_vect *in, t_vect *normal, t_vect *reflect);
 
 /**********matrices*****************/
 t_mat			*create_mat(int n, int m);
@@ -305,7 +328,9 @@ t_mat			*rotation_matrix(void);
 
 
 /*********casting********/
-
+void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c);
+void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c);
+void	ft_shade(t_intrsct *p, t_dlist *light, t_dlist *obj);
 
 /**********printers**********/
 void			print_vect(t_vect *v);

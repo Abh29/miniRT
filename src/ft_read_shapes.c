@@ -75,6 +75,7 @@ void			init_camera(t_shape *s, char **spt)
 		ft_exit("Error : ill formed point ", "Camera pov !", 1);
 	if (init_vect_str(&c->normal, spt[2]) == 0)
 		ft_exit("Error : ill formed vector ", "Camera normal !", 1);
+	normalize(&c->normal);
 	c->fov = ft_atoi(spt[3]);
 	if (c->fov < 0 || c->fov > 180)
 		ft_exit("Error : ill formed value ", "Camera fov !", 1);
@@ -119,6 +120,7 @@ void			init_sphere(t_shape *s, char **spt)
 {
 	t_sphere *l;
 
+	printf("sp\n");
 	if (!s || !spt || !spt[0] || !spt[1] || !spt[2] || !spt[3])
 		ft_exit("Error : not enough info for ", "Sphere !", 1);
 	s->id = E_SPHERE;

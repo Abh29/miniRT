@@ -6,7 +6,7 @@ void	set_camera_up(t_camera *c)
 
 	if (c == NULL)
 		return;
-	v = new_vect(0, 0, 1);
+	v = new_vect(1, 1, 1);
 	if (vect_lin(&v, &c->normal))
 		write_vect(0, 1, 0, &v);
 	c->right = vect_cross(&c->normal, &v);
@@ -14,8 +14,6 @@ void	set_camera_up(t_camera *c)
 	c->right = vect_cross(&c->normal, &c->up);
 	normalize(&c->up);
 	normalize(&c->right);
-	print_vect(&c->up);
-	print_vect(&c->right);
 }
 
 t_canvas		*init_canvas(t_camera *c, int H, int W)
@@ -26,8 +24,10 @@ t_canvas		*init_canvas(t_camera *c, int H, int W)
 	if (c == NULL || H < 1 || W < 1)
 		return (NULL);
 	set_camera_up(c);
+	write_vect(0,0,1, &c->up);
+	write_vect(0,1,0, &c->right);
 	out = ft_allocate(1, sizeof(t_canvas));
-	out->pixel_w = (2 * tan(c->fov *  M_PI / 360)) / W;
+	out->pixel_w = (2 * tan(c->fov *  M_PI / 360)) / H;
 	out->width = W;
 	out->height = H;
 	out->cast_rays = ft_allocate(H + 1, sizeof(t_vect *));
@@ -65,18 +65,18 @@ void			delete_screen(t_canvas **sc)
 void	init_cast_rays(t_canvas *cnv, t_camera *c)
 {
 	t_vect v;
+	t_vect v2;
 
 	for (int i = 0; i < cnv->height; i++)
 	{
 		for (int j = 0; j < cnv->width; j++)
 		{
-			vect_scalar(&c->right, (j - cnv->width / 2) * cnv->pixel_w, &v);
-			vect_sum(&v, &c->normal, &cnv->cast_rays[i][j]);
-			vect_scalar(&c->up, (i - cnv->height / 2) * cnv->pixel_w, &v);
-			vect_sum(&v, &cnv->cast_rays[i][j], &cnv->cast_rays[i][j]);
-			print_vect(&cnv->cast_rays[i][j]);
+			vect_scalar(&c->right, (i - cnv->height / 2) * cnv->pixel_w, &v);
+			vect_scalar(&c->up, (j - cnv->width / 2) * cnv->pixel_w, &v2);
+			vect_sum(&v, &v2, &cnv->cast_rays[i][j]);
+			vect_sum(&c->normal, &cnv->cast_rays[i][j], &cnv->cast_rays[i][j]);
 			normalize(&cnv->cast_rays[i][j]);
-		}		
+		}
 	}
 }
 
@@ -102,7 +102,7 @@ void	init_black_pixel(t_pixel *p, int x, int y)
 {
 	if (!p)
 		return ;
-	alter_color(&p->color, 255, 255, 255);
+	alter_color(&p->color, 0, 0, 0);
 	set_alpha(&p->color, 0);
 	alter_color(&p->reflection, 0, 0, 0);
 	set_alpha(&p->reflection, 0);
