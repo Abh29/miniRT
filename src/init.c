@@ -24,14 +24,20 @@ void	set_camera_up(t_camera *c)
 
 	if (c == NULL)
 		return;
-	v = new_vect(1, 1, 1);
+	v = new_vect(0, 0, 1);
 	if (vect_lin(&v, &c->normal))
 		write_vect(0, 1, 0, &v);
 	c->right = vect_cross(&c->normal, &v);
+	//vect_cpy(&v, &c->right);
 	c->up = vect_cross(&c->right, &c->normal);
-	c->right = vect_cross(&c->normal, &c->up);
+//	vect_cpy(&v, &c->up);
+//	c->right = vect_cross(&c->normal, &c->right);
 	normalize(&c->up);
 	normalize(&c->right);
+	printf("this is the right vect \n");
+	print_vect(&c->right);
+	printf("this is the up vect \n");
+	print_vect(&c->up);
 }
 
 void	*init_cnv_ij(void *arg)
@@ -95,8 +101,6 @@ t_canvas		*init_canvas(t_camera *c, int H, int W)
 	if (c == NULL || H < 1 || W < 1)
 		return (NULL);
 	set_camera_up(c);
-	write_vect(0,0,1, &c->up);
-	write_vect(0,1,0, &c->right);
 	out = ft_allocate(1, sizeof(t_canvas));
 	out->pixel_w = (2 * tan(c->fov * M_PI / 360)) / W;
 	out->width = W;
@@ -153,7 +157,7 @@ void	init_black_pixel(t_pixel *p, int x, int y)
 {
 	if (!p)
 		return ;
-	alter_color(&p->color, 255, 255, 255);
+	alter_color(&p->color, 0, 0, 0);
 	set_alpha(&p->color, 1);
 	alter_color(&p->reflection, 0, 0, 0);
 	set_alpha(&p->reflection, 1);

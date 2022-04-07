@@ -24,7 +24,7 @@
 
 #define EPSILON   1e-8
 
-#define CAST_SHADOWS	0
+#define CAST_SHADOWS	1
 
 typedef struct	s_vect {
 	double	x;

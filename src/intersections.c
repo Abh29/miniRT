@@ -186,6 +186,32 @@ t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 	return (out);
 }
 
+t_intrsct	*intr_plane_vect2(t_plane *s, t_vect *v, t_camera *c)
+{
+	t_intrsct	*out;
+	double		denom;
+	t_vect		p;
+	double		t;
+
+	if (vect_lin(&s->normal, v))
+		return (NULL);
+	denom = vect_dot(v, &s->normal);
+	if (fabs(denom) < EPSILON)
+		return (NULL);
+	vect_diff(&c->pov, &s->point, &p);
+	t = vect_dot(&p, &s->normal) / denom;
+	if (t < EPSILON)
+		return (NULL);
+	out = new_intersection_point();
+	vect_scalar(v, t, &p);
+	vect_sum(&c->pov, &p, &out->point);
+	vect_scalar(&s->normal, 1, &out->normal);
+	color_cpy(&s->color, &out->color);
+	out->dist = distance_ptpt(&c->pov, &out->point);
+	return (out);
+}
+
+
 t_intrsct	*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c)
 {
 	t_intrsct	*out;
@@ -196,18 +222,20 @@ t_intrsct	*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c)
 	if (vect_lin(&s->normal, v))
 		return (NULL);
 	denom = vect_dot(v, &s->normal);
-	if (denom < EPSILON)
+	if (fabs(denom) < EPSILON)
+		return (NULL);
+	vect_diff(&s->point, &c->pov, &p);
+	t = vect_dot(&p, &s->normal) / denom;
+	if (t < EPSILON)
 		return (NULL);
 	out = new_intersection_point();
-	vect_diff(&c->pov, &s->point, &p);
-	t = vect_dot(&p, &s->normal) / denom;
-	vect_scalar(v, t, &p);
-	vect_sum(&c->pov, &p, &out->point);
-	vect_scalar(&s->normal, 1, &out->normal);
+	out->dist = t;
+	out->s.id = E_PLANE;
 	color_cpy(&s->color, &out->color);
-	out->dist = distance_ptpt(&c->pov, &out->point);
+	out->s.shape = s;
 	return (out);
 }
+
 
 t_intrsct	*intr_disk_vect(t_plane *s, t_vect *v, t_camera *c, double diam)
 {

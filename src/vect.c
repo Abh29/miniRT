@@ -252,16 +252,11 @@ int				nullvect(t_vect *v)
 
 int	vect_lin(t_vect *a, t_vect *b)
 {
-	double t1;
-	double t2;
-
 	if (a == NULL || b == NULL)
 		return (1);
 	if (nullvect(a) || nullvect(b))
 		return (1);
-	t1 = a->x * b->y - b->x * a->y;
-	t2 = a->x * b->z - b->x * a->z;
-	if (fabs(t1) < EPSILON && fabs(t2) < EPSILON)
+	if (fabs(vect_dot(a, b) - vect_norm(a) * vect_norm(b)) < EPSILON)
 		return (1);
 	return (0);
 }

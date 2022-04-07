@@ -146,10 +146,13 @@ void			init_plane(t_shape *s, char **spt)
 	l = new_plane();
 	if (init_point_str(&l->point, spt[1]) == 0)
 		ft_exit("Error : ill formed point ", "Plane !", 1);
+	printf("plane point :\n"); print_vect(&l->point);
 	if (init_vect_str(&l->normal, spt[2]) == 0)
 		ft_exit("Error : ill formed vector ", "plane normal !", 1);
+	printf("plane normal :\n"); print_vect(&l->normal);
 	if (init_rgba_str(&l->color, spt[3]) == 0)
 		ft_exit("Error : ill formed color ", "plane !", 1);
+	printf("plane color : %d %d %d\n", l->color.r, l->color.g, l->color.b);
 	s->shape = l;
 }
 

@@ -63,18 +63,19 @@ int	main(int argc, char **argv)
 		ft_exit("no camera !\n", NULL, 1);
 	
 	data.mlx = mlx_init();
-	data.window = mlx_new_window(data.mlx, 100, 100, "miniRT");
-	data.img =  mlx_new_image(data.mlx, 100, 100);
+	data.window = mlx_new_window(data.mlx, 512, 512, "miniRT");
+	data.img =  mlx_new_image(data.mlx, 512, 512);
 	data.addr = mlx_get_data_addr(data.img, &data.bpp, &data.line_length, &data.endian);
 	mlx_key_hook(data.window, &ft_hook, NULL);
 
 	printf("init canvas start \n");
 //	getchar();
-	t_canvas *cnv = init_canvas(c, 100, 100);
+	
 	printf("camera : \n");
 	print_vect(&c->normal);
 	print_vect(&c->up);
 	print_vect(&c->right);
+	t_canvas *cnv = init_canvas(c, 512, 512);
 	printf("init canvas done ! \n");
 	//getchar();
 	cast_rays(cnv, obj, c);

@@ -101,6 +101,7 @@ void	*cast_one_ray(void	*args)
 				get_intersection_info(itr, &a->cnv->cast_rays[i][j], a->c);
 				set_phong_ambient(itr, &a->ambient);
 				ft_shade(itr, a->lights, a->objs);
+			//	color_cpy(&itr->color, &a->cnv->pixels[i][j].color);
 				color_cpy(&itr->phong.diffuse.color, &a->cnv->pixels[i][j].color);
 				add_colors(&itr->phong.ambient, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
 				add_colors(&itr->phong.specular.color, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
@@ -136,7 +137,8 @@ void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c)
 			a[i * 4 + j].s_w =  j * cnv->width / 4;
 			a[i * 4 + j].e_w = (j + 1) * cnv->width / 4;
 			pthread_create(&pid[i * 4 + j], NULL, cast_one_ray, &a[i * 4 + j]);
-		//	cast_one_ray(a);
+		//	if ((i % 2) != (j % 2))
+		//	cast_one_ray(&a[i * 4 + j]);
 		}
 	}
 	for (int i = 0; i < 16; i++)
@@ -145,7 +147,7 @@ void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c)
 	ft_dlstclear(&light, NULL);
 	ft_dlstclear(&amb, NULL);
 }
-
+int nnp = 1;
 void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 {
 	t_vect 		tmp;
@@ -160,14 +162,24 @@ void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 		s = p->s.shape;
 		vect_diff(&p->point, &s->center, &p->normal);
 		normalize(&p->normal);
-		if (vect_dot(&p->normal, &p->eye) > 0 && printf("inside\n"))
-			vect_scalar(&p->normal, -1, &p->normal);
 		color_cpy(&p->color, &((t_sphere *)(p->s.shape))->color);
 	}
 	else if (p->s.id == E_PLANE)
 	{
-		vect_scalar(&((t_plane *)p->s.shape)->normal, 1, &p->normal);
+		t_plane *pp = p->s.shape;
+		vect_cpy(&((t_plane *)p->s.shape)->normal, &p->normal);
 		color_cpy(&p->color, &((t_plane *)(p->s.shape))->color);
+		if (nnp){
+			printf("this is the hit point\n");
+			printf("plane dist %lf\n", p->dist);
+			printf("color %d %d %d\n", pp->color.r, pp->color.g, pp->color.b);
+			printf("point\n"); print_vect(&p->point);
+			printf("normal : \n"); print_vect(&pp->normal);
+			nnp = 0;
+		}
+	//	vect_scalar(&((t_plane *)p->s.shape)->normal, 1, &p->normal);
+	//	color_cpy(&p->color, &((t_plane *)(p->s.shape))->color);
+
 	}
 	// else if (p->s.id == E_CYLINDER)
 	// {
@@ -207,7 +219,7 @@ void	ft_shade(t_intrsct *p, t_dlist *light, t_dlist *obj)
 		normalize(&c.normal);
 		tmpo = obj;(void)tmpo;
 		itr = NULL;(void)itr;(void)tmp;
-		while (tmpo)
+		while (CAST_SHADOWS && tmpo)
 		{
 				tmp = intr_shape_vect(tmpo->content, &c.normal, &c);
 				if (tmp && !itr && tmp->dist > EPSILON)
