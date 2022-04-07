@@ -40,7 +40,7 @@ void	*init_cnv_ij(void *arg)
 	int			i;
 	int			j;
 
-	a = *(t_init_args **)arg;
+	a = (t_init_args *)arg;
 	i = a->s_h;
 	while (i < a->e_h)
 	{
@@ -64,20 +64,19 @@ void init_cast_rays_pixels(t_canvas *cnv, t_camera *c)
 	int j;
 
 	i = 0;
+	a = ft_allocate(17, sizeof(t_init_args));
 	while (i < 4)
 	{
 		j = 0;
 		while (j < 4)
 		{
-			a = ft_allocate(1, sizeof(t_init_args));
-			a->s_h =  i * cnv->height / 4;
-			a->e_h = (i + 1) * cnv->height / 4;
-			a->s_w =  j * cnv->width / 4;
-			a->e_w = (j + 1) * cnv->width / 4;
-			a->c = c;
-			a->cnv = cnv;
-			pthread_create(&pid[i * 4 + j], NULL, init_cnv_ij, &a);
-			init_cnv_ij(&a);
+			a[i * 4 + j].s_h =  i * cnv->height / 4;
+			a[i * 4 + j].e_h = (i + 1) * cnv->height / 4;
+			a[i * 4 + j].s_w =  j * cnv->width / 4;
+			a[i * 4 + j].e_w = (j + 1) * cnv->width / 4;
+			a[i * 4 + j].c = c;
+			a[i * 4 + j].cnv = cnv;
+			pthread_create(&pid[i * 4 + j], NULL, init_cnv_ij, &a[i * 4 + j]);
 			j++;
 		}
 		i++;
@@ -85,6 +84,7 @@ void init_cast_rays_pixels(t_canvas *cnv, t_camera *c)
 	i = 0;
 	while (i < 16)
 		pthread_join(pid[i++], NULL);
+	free(a);
 }
 
 t_canvas		*init_canvas(t_camera *c, int H, int W)
@@ -153,7 +153,7 @@ void	init_black_pixel(t_pixel *p, int x, int y)
 {
 	if (!p)
 		return ;
-	alter_color(&p->color, 0, 0, 0);
+	alter_color(&p->color, 255, 255, 255);
 	set_alpha(&p->color, 1);
 	alter_color(&p->reflection, 0, 0, 0);
 	set_alpha(&p->reflection, 1);

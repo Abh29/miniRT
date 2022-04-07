@@ -196,3 +196,18 @@ void			delete_quadric(t_quadric **q)
 {
 	free(*q);
 }
+
+void	delete_world_objects(t_dlist **obj)
+{
+	t_dlist	*p;
+
+	if (obj == NULL || *obj == NULL)
+		return ;
+	p = *obj;
+	while (p)
+	{
+		delete_shape((t_shape **)&p->content);
+		p = p->next;
+	}
+	ft_dlstclear(obj, NULL);
+}

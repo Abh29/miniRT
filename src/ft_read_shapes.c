@@ -56,6 +56,7 @@ t_shape 		*get_shape(char *line)
 		init_quadratic(out, spt);
 	else
 	{
+		free(out);
 		ft_free_split(&spt);
 		return (NULL);
 	}

@@ -88,7 +88,7 @@ void	*cast_one_ray(void	*args)
 				tmp = intr_shape_vect(p->content, &a->cnv->cast_rays[i][j], a->c);
 				if (tmp && !itr && tmp->dist > EPSILON)
 					itr = tmp;
-				else if (tmp && tmp->dist < itr->dist && tmp->dist > EPSILON)
+				else if (tmp && itr && tmp->dist < itr->dist && tmp->dist > EPSILON)
 				{
 					delete_intersection_point(&itr);
 					itr = tmp;
@@ -115,33 +115,35 @@ void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c)
 {
 	t_dlist			*light, *amb;
 	t_casting_args	*a;
-	pthread_t		pid[16];
+	pthread_t		pid[16];(void)pid;
 	
 	if (lst == NULL || lst->content == NULL)
 		return ;
 	light = get_lights(lst);(void)light;
 	amb = get_ambient(lst);(void)amb;
+	a = ft_allocate(17, sizeof(t_casting_args));
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			a = ft_allocate(1, sizeof(t_casting_args));
-			a->cnv = cnv;
-			a->ambient = amb;
-			a->lights = light;
-			a->c = c;
-			a->objs = lst;
-			a->s_h =  i * cnv->height / 4;
-			a->e_h = (i + 1) * cnv->height / 4;
-			a->s_w =  j * cnv->width / 4;
-			a->e_w = (j + 1) * cnv->width / 4;
-			pthread_create(&pid[i * 4 + j], NULL, cast_one_ray, a);
+			a[i * 4 + j].cnv = cnv;
+			a[i * 4 + j].ambient = amb;
+			a[i * 4 + j].lights = light;
+			a[i * 4 + j].c = c;
+			a[i * 4 + j].objs = lst;
+			a[i * 4 + j].s_h =  i * cnv->height / 4;
+			a[i * 4 + j].e_h = (i + 1) * cnv->height / 4;
+			a[i * 4 + j].s_w =  j * cnv->width / 4;
+			a[i * 4 + j].e_w = (j + 1) * cnv->width / 4;
+			pthread_create(&pid[i * 4 + j], NULL, cast_one_ray, &a[i * 4 + j]);
 		//	cast_one_ray(a);
 		}
 	}
-	printf("done casting threads\n");
 	for (int i = 0; i < 16; i++)
 		pthread_join(pid[i], NULL);
+	free(a);
+	ft_dlstclear(&light, NULL);
+	ft_dlstclear(&amb, NULL);
 }
 
 void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
@@ -151,13 +153,15 @@ void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 
 	vect_scalar(v, p->dist, &tmp);
 	vect_sum(&c->pov, &tmp, &p->point);
-	write_vect(v->x, v->y, v->z, &p->eye);
+	vect_cpy(v, &p->eye);
 	normalize(&p->eye);
 	if (p->s.id == E_SPHERE)
 	{
 		s = p->s.shape;
 		vect_diff(&p->point, &s->center, &p->normal);
 		normalize(&p->normal);
+		if (vect_dot(&p->normal, &p->eye) > 0 && printf("inside\n"))
+			vect_scalar(&p->normal, -1, &p->normal);
 		color_cpy(&p->color, &((t_sphere *)(p->s.shape))->color);
 	}
 	else if (p->s.id == E_PLANE)

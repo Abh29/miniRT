@@ -37,6 +37,16 @@ t_camera *get_camera(t_dlist *lst)
 	return (NULL);
 }
 
+
+int	ft_hook(int key)
+{
+
+	printf("key %d\n", key);
+	if (key == 65307)
+		exit(0);
+	return (0);
+}
+
 int	main(int argc, char **argv)
 {
 	(void) argc;
@@ -53,11 +63,14 @@ int	main(int argc, char **argv)
 		ft_exit("no camera !\n", NULL, 1);
 	
 	data.mlx = mlx_init();
-	data.window = mlx_new_window(data.mlx, 1920, 1080, "miniRT");
-	data.img =  mlx_new_image(data.mlx, 1920, 1080);
+	data.window = mlx_new_window(data.mlx, 100, 100, "miniRT");
+	data.img =  mlx_new_image(data.mlx, 100, 100);
 	data.addr = mlx_get_data_addr(data.img, &data.bpp, &data.line_length, &data.endian);
+	mlx_key_hook(data.window, &ft_hook, NULL);
+
+	printf("init canvas start \n");
 //	getchar();
-	t_canvas *cnv = init_canvas(c, 1920, 1080);
+	t_canvas *cnv = init_canvas(c, 100, 100);
 	printf("camera : \n");
 	print_vect(&c->normal);
 	print_vect(&c->up);
@@ -72,6 +85,7 @@ int	main(int argc, char **argv)
 	printf("now put image \n");
 //	getchar();
 	mlx_put_image_to_window(data.mlx, data.window, data.img, 0, 0);
+	delete_world_objects(&obj);
 	mlx_loop(data.mlx);
 	
 	

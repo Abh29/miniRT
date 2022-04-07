@@ -288,7 +288,7 @@ t_hyperbloid	*new_hyperbloid(void);
 void			delete_hyperloid(t_hyperbloid **h);
 t_quadric		*new_quadric(void);
 void			delete_quadric(t_quadric **q);
-	
+void			delete_world_objects(t_dlist **obj);
 
 /*********camera*************/
 void			set_up_vect(t_camera *c);
