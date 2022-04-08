@@ -1,8 +1,8 @@
 #ifndef MRT_H
 #define MRT_H
 
-# include "../libft/libft.h"
-# include "../gnl/get_next_line.h"
+# include "libft/libft.h"
+# include "gnl/get_next_line.h"
 # include <math.h>
 # include <stdlib.h>
 # include <stddef.h>

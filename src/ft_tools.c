@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_tools.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mehill <mehill@student.21-school.ru>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/04/08 22:18:12 by mehill            #+#    #+#             */
+/*   Updated: 2022/04/08 22:18:17 by mehill           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../mrt.h"
 
 void	ft_exit(char *str, char *msg, int err)
@@ -41,4 +53,3 @@ void	*ft_allocate(int n, int size)
 		ft_exit("Error : coult not allocate memroy !\n", NULL, 1);
 	return (out);
 }
-

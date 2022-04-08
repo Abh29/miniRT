@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mehill <mehill@student.21-school.ru>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/04/08 22:18:30 by mehill            #+#    #+#             */
+/*   Updated: 2022/04/08 22:19:50 by mehill           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../mrt.h"
 
 typedef struct init
@@ -10,8 +22,6 @@ typedef struct init
 	int			e_h;
 }	t_init_args;
 
-int count_ = 0;
-
 void		init_cast_ray_ij(t_canvas *cnv, t_camera *c, int i, int j);
 void		*init_cnv_ij(void *arg);
 void		init_cast_rays_pixels(t_canvas *cnv, t_camera *c);
@@ -23,7 +33,7 @@ void	set_camera_up(t_camera *c)
 	t_vect	v;
 
 	if (c == NULL)
-		return;
+		return ;
 	v = new_vect(0, 0, 1);
 	if (vect_lin(&v, &c->normal))
 		write_vect(0, 1, 0, &v);
@@ -55,12 +65,12 @@ void	*init_cnv_ij(void *arg)
 	return (NULL);
 }
 
-void init_cast_rays_pixels(t_canvas *cnv, t_camera *c)
+void	init_cast_rays_pixels(t_canvas *cnv, t_camera *c)
 {
 	t_init_args	*a;
 	pthread_t	pid[16];
-	int i;
-	int j;
+	int			i;
+	int			j;
 
 	i = 0;
 	a = ft_allocate(17, sizeof(t_init_args));
@@ -69,9 +79,9 @@ void init_cast_rays_pixels(t_canvas *cnv, t_camera *c)
 		j = 0;
 		while (j < 4)
 		{
-			a[i * 4 + j].s_h =  i * cnv->height / 4;
+			a[i * 4 + j].s_h = i * cnv->height / 4;
 			a[i * 4 + j].e_h = (i + 1) * cnv->height / 4;
-			a[i * 4 + j].s_w =  j * cnv->width / 4;
+			a[i * 4 + j].s_w = j * cnv->width / 4;
 			a[i * 4 + j].e_w = (j + 1) * cnv->width / 4;
 			a[i * 4 + j].c = c;
 			a[i * 4 + j].cnv = cnv;
@@ -86,7 +96,7 @@ void init_cast_rays_pixels(t_canvas *cnv, t_camera *c)
 	free(a);
 }
 
-t_canvas		*init_canvas(t_camera *c, int H, int W)
+t_canvas	*init_canvas(t_camera *c, int H, int W)
 {
 	t_canvas	*out;
 	int			i;
@@ -112,7 +122,7 @@ t_canvas		*init_canvas(t_camera *c, int H, int W)
 	return (out);
 }
 
-void			delete_screen(t_canvas **sc)
+void	delete_screen(t_canvas **sc)
 {
 	int	i;
 
@@ -131,8 +141,8 @@ void			delete_screen(t_canvas **sc)
 
 void	init_cast_ray_ij(t_canvas *cnv, t_camera *c, int i, int j)
 {
-	t_vect v;
-	t_vect v2;
+	t_vect	v;
+	t_vect	v2;
 
 	vect_scalar(&c->right, (i - cnv->height / 2) * cnv->pixel_w, &v);
 	vect_scalar(&c->up, (j - cnv->width / 2) * cnv->pixel_w, &v2);
@@ -157,7 +167,3 @@ void	init_black_pixel(t_pixel *p, int x, int y)
 	p->x = x;
 	p->y = y;
 }
-
-
-
-

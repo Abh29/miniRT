@@ -54,7 +54,7 @@ int	ft_hook(int key)
 {
 
 	printf("key %d\n", key);
-	if (key == 65307)
+	if (key == 65307 || key == 53)
 		exit(0);
 	return (0);
 }
