@@ -89,8 +89,17 @@ typedef	enum e_shapes{
 	E_QUADRATIC
 }		t_shape_id;
 
+typedef enum e_color_pattern{
+	E_NONE,
+	E_GRADIENT,
+	E_STRIPE,
+	E_SQUR,
+	E_CHECKER
+}	t_cpttrn;
+
 typedef struct  s_shape {
 	t_shape_id	id;
+	t_cpttrn	c_pattern;
 	void		*shape;
 }	t_shape;
 
@@ -148,6 +157,7 @@ typedef struct  s_intrsct {
 	double	dist;
 	t_shape	s;
 	t_phong	phong;
+	int		inside;
 }	t_intrsct;
 
 
@@ -196,6 +206,8 @@ typedef struct s_mlx
 	int		bpp;
 	int		line_length;
 	int		endian;
+	int		height;
+	int		width;
 }				t_mlx;
 
 
@@ -347,7 +359,7 @@ void			print_mat(t_mat *m);
 void			scan_mat(t_mat *m);
 void			scan_vect(t_vect *v);
 void			print_shape(t_shape *s);
-
+void			print_color(t_rgba *c);
 
 /***********display*************/
 void	ft_put_pixel(t_mlx *img, int x, int y, int color);

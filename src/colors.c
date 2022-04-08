@@ -8,7 +8,7 @@ t_rgba			*new_black()
 	out->r = 0;
 	out->g = 0;
 	out->a = 0;
-	out->a = 0;
+	out->a = 1;
 	return (out);
 }
 
@@ -88,9 +88,9 @@ void			alter_color(t_rgba *c, int r, int g, int b)
 {
 	if (c == NULL)
 		return ;
-	c->r = r;
-	c->g = g;
-	c->b = b;
+	c->r = fmin(fmax(r, 0), 255);
+	c->g = fmin(fmax(g, 0), 255);
+	c->b = fmin(fmax(b, 0), 255);
 }
 
 int				color_to_int(t_rgba *c)

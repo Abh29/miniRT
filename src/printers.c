@@ -57,3 +57,11 @@ void			scan_vect(t_vect *v)
 		printf("%s", v->w == 0 ? "vector" : "point");
 	}
 }
+
+void			print_color(t_rgba *c)
+{
+	if (c == NULL)
+		printf("(null_color)\n");
+	else
+		printf("[r = %d, g = %d, b = %d, a = %d]\n", c->r, c->g, c->b, c->a);
+}

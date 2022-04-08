@@ -8,20 +8,32 @@ void	ft_put_pixel(t_mlx *img, int x, int y, int color)
 	*(unsigned int *)dst = color;
 }
 
+t_vect	map_canvas_to_window(t_canvas *cnv, t_mlx *data, int ipx, int jpx)
+{
+	t_vect v;
+
+	v.x = ipx * cnv->height / data->height;
+	v.y = jpx * cnv->width / data->width;
+	return (v);
+}
+
 void	display_canvas(t_canvas *cnv, t_mlx *mlx)
 {
-	int color;
+	int		color;
+	t_vect	v;
 
-	for (int i = 0; i < cnv->height; i++)
+	for (int i = 0; i < mlx->height; i++)
 	{
-		for (int j = 0; j < cnv->width; j++)
+		for (int j = 0; j < mlx->width; j++)
 		{
-			color = color_to_int(&cnv->pixels[i][j].color);
+			v = map_canvas_to_window(cnv, mlx, i, j);
+			color = color_to_int(&cnv->pixels[(int)v.x][(int)v.y].color);
 			ft_put_pixel(mlx, i, j, color);
 		}	
 	}
-	
 }
+
+
 
 t_camera *get_camera(t_dlist *lst)
 {
@@ -62,9 +74,11 @@ int	main(int argc, char **argv)
 	if (c == NULL)
 		ft_exit("no camera !\n", NULL, 1);
 	
+	data.height = 800;
+	data.width = 800;
 	data.mlx = mlx_init();
-	data.window = mlx_new_window(data.mlx, 512, 512, "miniRT");
-	data.img =  mlx_new_image(data.mlx, 512, 512);
+	data.window = mlx_new_window(data.mlx, data.height, data.width, "miniRT");
+	data.img =  mlx_new_image(data.mlx, data.height, data.width);
 	data.addr = mlx_get_data_addr(data.img, &data.bpp, &data.line_length, &data.endian);
 	mlx_key_hook(data.window, &ft_hook, NULL);
 
@@ -75,7 +89,7 @@ int	main(int argc, char **argv)
 	print_vect(&c->normal);
 	print_vect(&c->up);
 	print_vect(&c->right);
-	t_canvas *cnv = init_canvas(c, 512, 512);
+	t_canvas *cnv = init_canvas(c, 400, 400);
 	printf("init canvas done ! \n");
 	//getchar();
 	cast_rays(cnv, obj, c);

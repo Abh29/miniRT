@@ -47,7 +47,6 @@ t_camera	*new_camera(void)
 	out->fov = -1;
 	init_vect(&out->normal);
 	init_point(&out->pov);
-//	set_up_vect(out);
 	return (out);
 }
 

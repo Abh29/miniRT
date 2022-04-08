@@ -168,6 +168,7 @@ void			init_cylinder(t_shape *s, char **spt)
 		ft_exit("Error : ill formed point ", "Cylinder !", 1);
 	if (init_vect_str(&l->normal, spt[2]) == 0)
 		ft_exit("Error : ill formed vector ", "Cylinder normal !", 1);
+	normalize(&l->normal);
 	l->diam = ft_atod(spt[3]);
 	if (l->diam < 0)
 		ft_exit("Error : ill formed value ", "Cylinder diam !", 1);

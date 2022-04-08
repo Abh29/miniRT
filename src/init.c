@@ -28,16 +28,9 @@ void	set_camera_up(t_camera *c)
 	if (vect_lin(&v, &c->normal))
 		write_vect(0, 1, 0, &v);
 	c->right = vect_cross(&c->normal, &v);
-	//vect_cpy(&v, &c->right);
 	c->up = vect_cross(&c->right, &c->normal);
-//	vect_cpy(&v, &c->up);
-//	c->right = vect_cross(&c->normal, &c->right);
 	normalize(&c->up);
 	normalize(&c->right);
-	printf("this is the right vect \n");
-	print_vect(&c->right);
-	printf("this is the up vect \n");
-	print_vect(&c->up);
 }
 
 void	*init_cnv_ij(void *arg)

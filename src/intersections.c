@@ -8,7 +8,7 @@ void	init_phong(t_phong *ph)
 	init_rgba(&ph->diffuse.color);
 	init_rgba(&ph->specular.color);
 	ph->roughness = 50;
-	ph->diffuse.ratio = 1;
+	ph->diffuse.ratio = 0.87;
 	ph->specular.ratio = 0.4;
 }
 
@@ -23,6 +23,7 @@ t_intrsct	*new_intersection_point(void)
 	init_phong(&out->phong);
 	out->dist = 0;
 	out->s.shape = NULL;
+	out->inside = 0;
 	return (out);
 }
 
@@ -88,9 +89,9 @@ void	solve_2deg_equ(t_2deg_equ *equ)
 	equ->delta = equ->b * equ->b - 4 * equ->a * equ->c;
 	if (equ->delta >= 0)
 	{
-		equ->x1 = (-equ->b - sqrtl(equ->delta)) / (2 * equ->a);
-		t = (-equ->b + sqrtl(equ->delta)) / (2 * equ->a);
-		if (equ->x1 > t && t > 0)
+		equ->x1 = (-1 * equ->b - sqrtl(equ->delta)) / (2 * equ->a);
+		t = (- 1 * equ->b + sqrt(equ->delta)) / (2 * equ->a);
+		if ((equ->x1 > t && t > 0) || equ->x1 < 0)
 		{
 			equ->x2 = equ->x1;
 			equ->x1 = t;
@@ -186,7 +187,7 @@ t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 	return (out);
 }
 
-t_intrsct	*intr_plane_vect2(t_plane *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_plane_vect1(t_plane *s, t_vect *v, t_camera *c)
 {
 	t_intrsct	*out;
 	double		denom;
@@ -321,7 +322,7 @@ t_intrsct	*intr_side_cylinder(t_cylinder *s, t_vect *v, t_camera *c)
 	return (out);
 }
 
-t_intrsct	*intr_cylinder_vect(t_cylinder *s, t_vect *v, t_camera *c)
+t_intrsct	*intr_cylinder_vect2(t_cylinder *s, t_vect *v, t_camera *c)
 {
 	t_intrsct	*out;
 	t_intrsct	*tp[4];
@@ -348,6 +349,61 @@ t_intrsct	*intr_cylinder_vect(t_cylinder *s, t_vect *v, t_camera *c)
 	delete_intersection_point(&tp[2]);
 	return (out);
 }
+
+t_intrsct	*intr_cylinder_vect(t_cylinder *s, t_vect *v, t_camera *c)
+{
+	t_intrsct	*out;
+	t_vect	v2;
+	t_vect	dp;
+	t_vect tmp;
+	t_2deg_equ	equ;
+
+	vect_diff(&c->pov, &s->center, &dp);
+
+	equ.delta = vect_dot(v, &s->normal);
+	vect_scalar(&s->normal, equ.delta, &v2);
+	vect_diff(v, &v2, &v2);
+	equ.a = vect_dot(&v2, &v2);
+
+	equ.delta = vect_dot(&dp, &s->normal);
+	vect_scalar(&s->normal, equ.delta, &tmp);
+	vect_diff(&dp, &tmp, &tmp);
+	equ.b = 2 * vect_dot(&v2, &tmp);
+
+	equ.c = vect_dot(&tmp, &tmp) - s->diam * s->diam;
+	solve_2deg_equ(&equ);
+	if(equ.delta < 0 || equ.x1 < 0)
+		return (NULL);
+
+	out = new_intersection_point();
+	
+	t_vect m;
+	vect_scalar(v, equ.x1, &out->point);
+	vect_sum(&out->point, &c->pov, &out->point);
+	vect_diff(&out->point, &s->center, &m);
+	double t = vect_dot(&m, &s->normal);
+	if (t < 0 || s->height - t < 0)
+	{
+		equ.x1 = equ.x2;
+		vect_scalar(v, equ.x1, &out->point);
+		vect_sum(&out->point, &c->pov, &out->point);
+		vect_diff(&out->point, &s->center, &m);
+		t = vect_dot(&m, &s->normal);
+		out->inside = 1;
+		if (t < 0 || t > s->height)
+		{
+			delete_intersection_point(&out);
+			return (NULL);
+		}
+	}
+	color_cpy(&s->color, &out->color);
+	out->s.id = E_CYLINDER;
+	out->s.shape = s;
+	out->dist = equ.x1;
+	return (out);
+}
+
+
 
 t_intrsct	*intr_hyperbloid_vect(t_hyperbloid *s, t_vect *v, t_camera *c)
 {
