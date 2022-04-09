@@ -158,7 +158,7 @@ typedef struct  s_intrsct {
 	t_vect	lightv;
 	t_rgba	color;
 	double	dist;
-	t_shape	s;
+	t_shape	*s;
 	t_phong	phong;
 	int		inside;
 }	t_intrsct;

@@ -97,7 +97,6 @@ int	ft_key_hook(int key, t_mrt *w)
 
 int	ft_mouse_hook(int key, int x, int y, t_mrt *w)
 {
-	t_shape *t;
 	printf("x : %d   y : %d   key : %d\n", x, y, key);
 	t_vect v = map_canvas_to_window(w->cnv, &w->display, x, y);
 	printf("i : %lf, j : %lf\n", v.x, v.y);
@@ -105,33 +104,31 @@ int	ft_mouse_hook(int key, int x, int y, t_mrt *w)
 	t_dlist	*p = w->objs;
 	t_intrsct *itr = NULL;
 	t_intrsct *tmp;
+	if (key == 1)
+	{
 	while (p)
 	{
-		tmp = intr_shape_vect(p->content, &w->cnv->cast_rays[(int)v.x][(int)v.y], w->c);
-		if (tmp && !itr && tmp->dist > EPSILON)
-		{
-			t = p->content;
-			itr = tmp;
+			tmp = intr_shape_vect(p->content, &w->cnv->cast_rays[(int)v.x][(int)v.y], w->c);
+			if (tmp && !itr && tmp->dist > EPSILON)
+				itr = tmp;
+			else if (tmp && itr && tmp->dist < itr->dist && tmp->dist > EPSILON)
+			{
+				delete_intersection_point(&itr);
+				itr = tmp;
+			}else if (tmp)
+				delete_intersection_point(&tmp);
+			p = p->next;
 		}
-		else if (tmp && itr && tmp->dist < itr->dist && tmp->dist > EPSILON)
+		if (itr)
 		{
-			t = p->content;
+			itr->s->selected = itr->s->selected == 1 ? 0 : 1;
+			printf("opject intersected is %d   selected %d\n", itr->s->id, itr->s->selected);
+			lazy_canvas_update(w);
 			delete_intersection_point(&itr);
-			itr = tmp;
-		}else if (tmp)
-			delete_intersection_point(&tmp);
-		p = p->next;
+		}
+		else
+			printf("no object intersected !\n");
 	}
-	if (itr)
-	{
-		t->selected = t->selected == 1 ? 0 : 1;
-		printf("t id %d\n", t->id);
-		printf("opject intersected is %d   selected %d\n", itr->s.id, itr->s.selected);
-		update_canvas(w);
-		delete_intersection_point(&itr);
-	}
-	else
-		printf("no object intersected !\n");
 	return (0);
 }
 
@@ -151,7 +148,7 @@ int	main(int argc, char **argv)
 	mlx_key_hook(world.display.window, &ft_key_hook, &world);
 	mlx_mouse_hook(world.display.window, &ft_mouse_hook, &world);
 
-	world.cnv = init_canvas(world.c, 500, 500);
+	world.cnv = init_canvas(world.c, 400, 400);
 	world.lazy = init_canvas(world.c, 100, 100);
 	printf("init canvas done ! \n");
 	//getchar();

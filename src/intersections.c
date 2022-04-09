@@ -34,7 +34,7 @@ t_intrsct	*new_intersection_point(void)
 	init_rgba(&out->color);
 	init_phong(&out->phong);
 	out->dist = 0;
-	out->s.shape = NULL;
+	out->s = NULL;
 	out->inside = 0;
 	return (out);
 }
@@ -74,6 +74,8 @@ t_intrsct	*intr_shape_vect(t_shape *s, t_vect *v, t_camera *c)
 		out = intr_hyperbloid_vect((t_hyperbloid *)s->shape, v, c);
 	else if (s->id == E_QUADRATIC)
 		out = intr_quadric_vect((t_quadric *)s->shape, v, c);
+	if (out)
+		out->s = s;
 	return (out);
 }
 
@@ -169,8 +171,6 @@ t_intrsct	*intr_sphere_vect2(t_sphere *s, t_vect *v, t_camera *c)
 		equ.x1 = equ.x2;
 	out = new_intersection_point();
 	out->dist = equ.x1;
-	out->s.shape = s;
-	out->s.id = E_SPHERE;
 	return (out);
 }
 
@@ -193,8 +193,6 @@ t_intrsct	*intr_sphere_vect(t_sphere *s, t_vect *v, t_camera *c)
 		return (NULL);
 	out = new_intersection_point();
 	out->dist = d_t - sqrt(s->diam * s->diam - d_c * d_c);
-	out->s.shape = s;
-	out->s.id = E_SPHERE;
 	color_cpy(&s->color, &out->color); // delete this
 	return (out);
 }
@@ -243,9 +241,7 @@ t_intrsct	*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c)
 		return (NULL);
 	out = new_intersection_point();
 	out->dist = t;
-	out->s.id = E_PLANE;
 	color_cpy(&s->color, &out->color);
-	out->s.shape = s;
 	return (out);
 }
 
@@ -409,8 +405,6 @@ t_intrsct	*intr_cylinder_vect(t_cylinder *s, t_vect *v, t_camera *c)
 		}
 	}
 	color_cpy(&s->color, &out->color);
-	out->s.id = E_CYLINDER;
-	out->s.shape = s;
 	out->dist = equ.x1;
 	return (out);
 }

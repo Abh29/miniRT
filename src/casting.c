@@ -118,7 +118,7 @@ void	*cast_one_ray(void	*args)
 				add_colors(&itr->phong.ambient, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
 				add_colors(&itr->phong.specular.color, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
 			//	add_global_pattern(itr, a->cnv, i, j);
-				if (itr->s.selected)
+				if (itr->s->selected)
 				{
 					a->cnv->pixels[i][j].color.r = a->cnv->pixels[i][j].color.r / 2 + 120;
 					a->cnv->pixels[i][j].color.g = a->cnv->pixels[i][j].color.g / 2 + 120;
@@ -244,27 +244,27 @@ void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 
 	vect_cpy(v, &p->eye);
 	normalize(&p->eye);
-	if (p->s.id == E_SPHERE)
+	if (p->s->id == E_SPHERE)
 	{
-		s = p->s.shape;
+		s = p->s->shape;
 		vect_scalar(v, p->dist, &tmp);
 		vect_sum(&c->pov, &tmp, &p->point);
 		vect_diff(&p->point, &s->center, &p->normal);
 		normalize(&p->normal);
-		color_cpy(&p->color, &((t_sphere *)(p->s.shape))->color);
+		color_cpy(&p->color, &((t_sphere *)(p->s->shape))->color);
 	//	alter_color_rings(p, 2, 0.8, 1);
 	}
-	else if (p->s.id == E_PLANE)
+	else if (p->s->id == E_PLANE)
 	{
 		vect_scalar(v, p->dist, &tmp);
 		vect_sum(&c->pov, &tmp, &p->point);
-		vect_cpy(&((t_plane *)p->s.shape)->normal, &p->normal);
-		color_cpy(&p->color, &((t_plane *)(p->s.shape))->color);
+		vect_cpy(&((t_plane *)p->s->shape)->normal, &p->normal);
+		color_cpy(&p->color, &((t_plane *)(p->s->shape))->color);
 		alter_color_checkered(p, 2, 0.8);
 	}
-	else if (p->s.id == E_CYLINDER)
+	else if (p->s->id == E_CYLINDER)
 	{
-		t_cylinder *cy = p->s.shape;
+		t_cylinder *cy = p->s->shape;
 		vect_diff(&p->point, &cy->center, &tmp);
 		vect_scalar(&cy->normal, vect_dot(&tmp, &cy->normal), &tmp);
 		vect_diff(&tmp, &p->point, &p->normal);
@@ -272,13 +272,13 @@ void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 	//		vect_scalar(&p->normal, -1, &p->normal);
 		normalize(&p->normal);
 	}
-	// else if (p->s.id == E_HYPERBLOID)
+	// else if (p->s->id == E_HYPERBLOID)
 	// {
-	// 	(t_hyperbloid *)p->s.shape;
+	// 	(t_hyperbloid *)p->s->shape;
 	// }
-	// else if (p->s.id == E_QUADRATIC)
+	// else if (p->s->id == E_QUADRATIC)
 	// {
-	// 	(t_quadric *)p->s.shape;
+	// 	(t_quadric *)p->s->shape;
 	// }
 
 }
