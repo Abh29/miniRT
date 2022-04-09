@@ -107,3 +107,26 @@ t_mat	*rev_mat(t_mat *a)
 	delete_mat(&out);
 	return (tmp);
 }
+
+int	mat_cpy(t_mat *src, t_mat *dest)
+{
+	int i;
+	int j;
+
+	if (src == NULL || dest == NULL)
+		return (0);
+	if ((src->n != dest->n) || (src->m != dest->m))
+		return (0);
+	i = 0;
+	while (i < src->n)
+	{
+		j = 0;
+		while (j < src->m)
+		{
+			dest->data[i][j] = src->data[i][j];
+			j++;
+		}
+		i++;
+	}
+	return (1);
+}

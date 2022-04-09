@@ -122,7 +122,7 @@ t_canvas	*init_canvas(t_camera *c, int H, int W)
 	return (out);
 }
 
-void	delete_screen(t_canvas **sc)
+void	delete_canvas(t_canvas **sc)
 {
 	int	i;
 

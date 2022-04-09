@@ -20,6 +20,9 @@ t_shape	*new_shape(void)
 	if (out == NULL)
 		ft_exit("Error : could not allocate memory\n", NULL, 1);
 	out->shape = NULL;
+	out->c_pattern = E_NONE;
+	out->transform = NULL;
+	out->updated = 0;
 	return (out);
 }
 

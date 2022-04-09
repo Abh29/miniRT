@@ -99,8 +99,10 @@ typedef enum e_color_pattern{
 
 typedef struct  s_shape {
 	t_shape_id	id;
-	t_cpttrn	c_pattern;
 	void		*shape;
+	t_mat		*transform;
+	t_cpttrn	c_pattern;
+	int			updated;
 }	t_shape;
 
 
@@ -210,6 +212,16 @@ typedef struct s_mlx
 	int		width;
 }				t_mlx;
 
+typedef struct s_mrt
+{
+	t_mlx		display;
+	t_dlist		*objs;
+	t_canvas	*cnv;
+	t_canvas	*lazy;
+	t_camera	*c;
+	t_shape		*selected;
+	int			update;
+}		t_mrt;
 
 /**********tools*************/
 void			ft_exit(char *str, char *msg, int err);
@@ -263,6 +275,7 @@ t_mat			*transpose(t_mat *a);
 t_mat			*sub_mat(t_mat *a, int line, int col);
 double			det_mat(t_mat *a);
 t_mat			*rev_mat(t_mat *a);
+int				mat_cpy(t_mat *src, t_mat *dest);
 
 /**********colors*******************/
 
@@ -362,6 +375,20 @@ void			print_shape(t_shape *s);
 void			print_color(t_rgba *c);
 
 /***********display*************/
-void	ft_put_pixel(t_mlx *img, int x, int y, int color);
+void			ft_put_pixel(t_mlx *img, int x, int y, int color);
+t_vect			map_canvas_to_window(t_canvas *cnv, t_mlx *data, int ipx, int jpx);
+void			display_canvas(t_canvas *cnv, t_mlx *mlx);
+void 			lazy_canvas_update(t_mrt *w);
+void 			update_canvas(t_mrt *w);
+void			init_mlx(t_mlx *display, int H, int W);
+
+/***********camera**************/
+t_camera		*get_camera(t_dlist *lst);
+t_mat			*get_camera_to_world_matrix(t_camera *c);
+void			rotate_camera_on_y(t_mrt *w, double deg);
+void			rotate_camera_on_z(t_mrt *w, double deg);
+
+/************hook****************/
+
 
 #endif
