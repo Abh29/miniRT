@@ -103,6 +103,7 @@ typedef struct  s_shape {
 	t_mat		*transform;
 	t_cpttrn	c_pattern;
 	int			updated;
+	int			selected;
 }	t_shape;
 
 
@@ -336,7 +337,7 @@ void			init_quadratic(t_shape *s, char **spt);
 /**********parser*************/
 t_dlist			*read_file(char *path);
 t_shape 		*get_shape(char *line);
-
+void			add_shape_info(t_shape *s, char *info);
 
 /**********intersections*******/
 t_intrsct		*new_intersection_point(void);
@@ -381,6 +382,8 @@ void			display_canvas(t_canvas *cnv, t_mlx *mlx);
 void 			lazy_canvas_update(t_mrt *w);
 void 			update_canvas(t_mrt *w);
 void			init_mlx(t_mlx *display, int H, int W);
+t_vect			map_window_to_canvas(t_canvas *cnv, t_mlx *data, int iw, int jw);
+t_vect			map_canvas_to_window(t_canvas *cnv, t_mlx *data, int ipx, int jpx);
 
 /***********camera**************/
 t_camera		*get_camera(t_dlist *lst);

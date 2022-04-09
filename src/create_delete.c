@@ -23,6 +23,7 @@ t_shape	*new_shape(void)
 	out->c_pattern = E_NONE;
 	out->transform = NULL;
 	out->updated = 0;
+	out->selected = 0;
 	return (out);
 }
 

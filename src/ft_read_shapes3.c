@@ -27,3 +27,9 @@ void	init_quadratic(t_shape *s, char **spt)
 	(void)s;
 	(void)spt;
 }
+
+void	add_shape_info(t_shape *s, char *info)
+{
+	(void)s;
+	(void)info;
+}

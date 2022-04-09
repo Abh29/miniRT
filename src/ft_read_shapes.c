@@ -12,18 +12,26 @@
 
 #include "../mrt.h"
 
-t_dlist	*read_file(char *path)
+int	open_file(char *path)
 {
-	int		fd;
-	t_dlist	*out;
-	char	*line;
-	t_shape	*p;
+	int	fd;
 
 	if (path == NULL)
 		ft_exit("Error : no file_path supplied !\n", NULL, 1);
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
 		ft_exit("Error : coult not open", path, 1);
+	return (fd);
+}
+
+t_dlist	*read_file(char *path)
+{
+	t_dlist	*out;
+	t_shape	*p;
+	int		fd;
+	char	*line;
+
+	fd = open_file(path);
 	out = NULL;
 	line = get_next_line(fd);
 	while (line)
@@ -32,6 +40,8 @@ t_dlist	*read_file(char *path)
 		p = get_shape(line);
 		if (p)
 			ft_dlstadd_back(&out, ft_dlstnew(p));
+		else if (out)
+			add_shape_info(p, line);
 		free(line);
 		line = get_next_line(fd);
 	}

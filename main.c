@@ -13,7 +13,7 @@ void transform_all_shapes(t_dlist *objs, t_mat *tr)
 	}
 }
 
-int	ft_hook(int key, t_mrt *w)
+int	ft_key_hook(int key, t_mrt *w)
 {
 	printf("key %d\n", key);
 	if (key == 65307 || key == 53)
@@ -95,6 +95,46 @@ int	ft_hook(int key, t_mrt *w)
 	return (0);
 }
 
+int	ft_mouse_hook(int key, int x, int y, t_mrt *w)
+{
+	t_shape *t;
+	printf("x : %d   y : %d   key : %d\n", x, y, key);
+	t_vect v = map_canvas_to_window(w->cnv, &w->display, x, y);
+	printf("i : %lf, j : %lf\n", v.x, v.y);
+	print_color(&w->cnv->pixels[(int)v.x][(int)v.y].color);
+	t_dlist	*p = w->objs;
+	t_intrsct *itr = NULL;
+	t_intrsct *tmp;
+	while (p)
+	{
+		tmp = intr_shape_vect(p->content, &w->cnv->cast_rays[(int)v.x][(int)v.y], w->c);
+		if (tmp && !itr && tmp->dist > EPSILON)
+		{
+			t = p->content;
+			itr = tmp;
+		}
+		else if (tmp && itr && tmp->dist < itr->dist && tmp->dist > EPSILON)
+		{
+			t = p->content;
+			delete_intersection_point(&itr);
+			itr = tmp;
+		}else if (tmp)
+			delete_intersection_point(&tmp);
+		p = p->next;
+	}
+	if (itr)
+	{
+		t->selected = t->selected == 1 ? 0 : 1;
+		printf("t id %d\n", t->id);
+		printf("opject intersected is %d   selected %d\n", itr->s.id, itr->s.selected);
+		update_canvas(w);
+		delete_intersection_point(&itr);
+	}
+	else
+		printf("no object intersected !\n");
+	return (0);
+}
+
 int	main(int argc, char **argv)
 {
 	(void) argc;
@@ -108,7 +148,8 @@ int	main(int argc, char **argv)
 		ft_exit("no camera !\n", NULL, 1);
 	
 	init_mlx(&world.display, 1000, 1000);
-	mlx_key_hook(world.display.window, &ft_hook, &world);
+	mlx_key_hook(world.display.window, &ft_key_hook, &world);
+	mlx_mouse_hook(world.display.window, &ft_mouse_hook, &world);
 
 	world.cnv = init_canvas(world.c, 500, 500);
 	world.lazy = init_canvas(world.c, 100, 100);

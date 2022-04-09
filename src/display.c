@@ -18,6 +18,15 @@ t_vect	map_canvas_to_window(t_canvas *cnv, t_mlx *data, int ipx, int jpx)
 	return (v);
 }
 
+t_vect	map_window_to_canvas(t_canvas *cnv, t_mlx *data, int iw, int jw)
+{
+	t_vect v;
+
+	v.x = iw * data->height / cnv->height;
+	v.y = jw * data->width / cnv->width;
+	return (v);
+}
+
 void	display_canvas(t_canvas *cnv, t_mlx *mlx)
 {
 	int		color;

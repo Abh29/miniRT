@@ -118,6 +118,12 @@ void	*cast_one_ray(void	*args)
 				add_colors(&itr->phong.ambient, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
 				add_colors(&itr->phong.specular.color, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
 			//	add_global_pattern(itr, a->cnv, i, j);
+				if (itr->s.selected)
+				{
+					a->cnv->pixels[i][j].color.r = a->cnv->pixels[i][j].color.r / 2 + 120;
+					a->cnv->pixels[i][j].color.g = a->cnv->pixels[i][j].color.g / 2 + 120;
+					a->cnv->pixels[i][j].color.b = a->cnv->pixels[i][j].color.b / 2 + 120;
+				}
 				delete_intersection_point(&itr);
 			}
 		}
