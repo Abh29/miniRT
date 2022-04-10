@@ -61,6 +61,8 @@ int	get_shape_helper(char **spt, t_shape *out)
 		init_hyperbloid(out, spt);
 	else if (ft_strcmp(spt[0], "qu") == 0)
 		init_quadratic(out, spt);
+	else if (ft_strcmp(spt[0], "co") == 0)
+		init_cone(out, spt);
 	else
 		return (0);
 	return (1);
@@ -92,6 +94,7 @@ t_shape	*get_shape(char *line)
 		return (NULL);
 	}
 	ft_free_split(&spt);
+	out->rflct = 0;
 	return (out);
 }
 

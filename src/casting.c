@@ -81,6 +81,75 @@ void	add_global_pattern(t_intrsct *itr, t_canvas *cnv, int i, int j)
 	delete_color(&c);
 }
 
+void	color_chromaticity(t_rgba *c, t_rgba *dest)
+{
+	if (c == NULL || dest == NULL)
+		return ;
+	if (c->r || c->g || c->b)
+	{
+		dest->r = c->r / (c->r + c->g + c->b) * 255;
+		dest->g = c->g / (c->r + c->g + c->b) * 255;
+		dest->b = c->b / (c->r + c->g + c->b) * 255;
+	}
+	else
+		alter_color(dest, 0, 0, 0);
+}
+
+void	set_pixel_color(t_canvas *cnv, t_intrsct *itr, int i, int j)
+{
+//	color_cpy(&itr->color, &cnv->pixels[i][j].color);
+//	color_chromaticity(&cnv->pixels[i][j].color, &cnv->pixels[i][j].color);
+	color_cpy(&itr->phong.ambient, &cnv->pixels[i][j].color);
+	add_colors(&itr->phong.diffuse.color, &cnv->pixels[i][j].color, &cnv->pixels[i][j].color);
+	add_colors(&itr->phong.specular.color, &cnv->pixels[i][j].color, &cnv->pixels[i][j].color);
+	avg_colors2(&itr->phong.reflection, itr->s->rflct, &cnv->pixels[i][j].color, 2 - itr->s->rflct, &cnv->pixels[i][j].color);
+//	add_global_pattern(itr, cnv, i, j);
+	if (itr->s->selected)
+	{
+		cnv->pixels[i][j].color.r = cnv->pixels[i][j].color.r / 2 + 120;
+		cnv->pixels[i][j].color.g = cnv->pixels[i][j].color.g / 2 + 120;
+		cnv->pixels[i][j].color.b = cnv->pixels[i][j].color.b / 2 + 120;
+	}
+}
+
+void	set_phong_reflection(t_intrsct *p, t_dlist *light, t_dlist *obj, int rec)
+{
+	t_intrsct *itr = NULL;
+	t_intrsct *tmp;
+	t_camera	c;
+	t_dlist		*os;
+
+	if (rec < 1)
+		return ;
+	vect_cpy(&p->point, &c.pov);
+	vect_cpy(&p->reflect, &c.normal);
+	os = obj;
+	while (os)
+	{
+		tmp = intr_shape_vect(os->content, &c.normal, &c);
+		if (tmp && !itr && tmp->dist > EPSILON)
+			itr = tmp;
+		else if (tmp && itr && tmp->dist < itr->dist && tmp->dist > EPSILON)
+		{
+			delete_intersection_point(&itr);
+			itr = tmp;
+		}
+		else if (tmp)
+			delete_intersection_point(&tmp);
+		os = os->next;
+	}
+	if (itr)
+	{
+		get_intersection_info(itr, &c.normal, &c);
+		ft_shade(itr, light, obj);
+		set_phong_reflection(itr, light, obj, rec - 1);
+		color_cpy(&itr->phong.ambient, &p->phong.reflection);
+		add_colors(&itr->phong.diffuse.color, &p->phong.reflection, &p->phong.reflection);
+		add_colors(&itr->phong.specular.color, &p->phong.reflection, &p->phong.reflection);
+		delete_intersection_point(&itr);
+	}
+}
+
 void	*cast_one_ray(void	*args)
 {
 	t_casting_args	*a;
@@ -113,17 +182,8 @@ void	*cast_one_ray(void	*args)
 				get_intersection_info(itr, &a->cnv->cast_rays[i][j], a->c);
 				set_phong_ambient(itr, &a->ambient);
 				ft_shade(itr, a->lights, a->objs);
-			//	color_cpy(&itr->color, &a->cnv->pixels[i][j].color);
-				color_cpy(&itr->phong.diffuse.color, &a->cnv->pixels[i][j].color);
-				add_colors(&itr->phong.ambient, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
-				add_colors(&itr->phong.specular.color, &a->cnv->pixels[i][j].color, &a->cnv->pixels[i][j].color);
-			//	add_global_pattern(itr, a->cnv, i, j);
-				if (itr->s->selected)
-				{
-					a->cnv->pixels[i][j].color.r = a->cnv->pixels[i][j].color.r / 2 + 120;
-					a->cnv->pixels[i][j].color.g = a->cnv->pixels[i][j].color.g / 2 + 120;
-					a->cnv->pixels[i][j].color.b = a->cnv->pixels[i][j].color.b / 2 + 120;
-				}
+				set_phong_reflection(itr, a->lights, a->objs, REFLECTIONS);
+				set_pixel_color(a->cnv, itr, i, j);
 				delete_intersection_point(&itr);
 			}
 		}
@@ -205,38 +265,38 @@ void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c)
 {
 	t_dlist			*light, *amb;
 	t_casting_args	*a;
-	pthread_t		pid[16];(void)pid;
+	pthread_t		pid[NTH * NTH];
 	
 	if (lst == NULL || lst->content == NULL)
 		return ;
 	light = get_lights(lst);(void)light;
 	amb = get_ambient(lst);(void)amb;
-	a = ft_allocate(17, sizeof(t_casting_args));
-	for (int i = 0; i < 4; i++)
+	a = ft_allocate(NTH * NTH + 1, sizeof(t_casting_args));
+	for (int i = 0; i < NTH; i++)
 	{
-		for (int j = 0; j < 4; j++)
+		for (int j = 0; j < NTH; j++)
 		{
-			a[i * 4 + j].cnv = cnv;
-			a[i * 4 + j].ambient = amb;
-			a[i * 4 + j].lights = light;
-			a[i * 4 + j].c = c;
-			a[i * 4 + j].objs = lst;
-			a[i * 4 + j].s_h =  i * cnv->height / 4;
-			a[i * 4 + j].e_h = (i + 1) * cnv->height / 4;
-			a[i * 4 + j].s_w =  j * cnv->width / 4;
-			a[i * 4 + j].e_w = (j + 1) * cnv->width / 4;
-		//	pthread_create(&pid[i * 4 + j], NULL, cast_one_ray, &a[i * 4 + j]);
+			a[i * NTH + j].cnv = cnv;
+			a[i * NTH + j].ambient = amb;
+			a[i * NTH + j].lights = light;
+			a[i * NTH + j].c = c;
+			a[i * NTH + j].objs = lst;
+			a[i * NTH + j].s_h =  i * cnv->height / NTH;
+			a[i * NTH + j].e_h = (i + 1) * cnv->height / NTH;
+			a[i * NTH + j].s_w =  j * cnv->width / NTH;
+			a[i * NTH + j].e_w = (j + 1) * cnv->width / NTH;
+			pthread_create(&pid[i * NTH + j], NULL, cast_one_ray, &a[i * NTH + j]);
 		//	if ((i % 2) != (j % 2))
-			cast_one_ray(&a[i * 4 + j]);
+		//	cast_one_ray(&a[i * NTH + j]);
 		}
 	}
-	//for (int i = 0; i < 16; i++)
-	//	pthread_join(pid[i], NULL);
+	for (int i = 0; i < NTH * NTH; i++)
+		pthread_join(pid[i], NULL);
 	free(a);
 	ft_dlstclear(&light, NULL);
 	ft_dlstclear(&amb, NULL);
 }
-int nnp = 1;
+
 void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 {
 	t_vect 		tmp;
@@ -251,8 +311,11 @@ void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 		vect_sum(&c->pov, &tmp, &p->point);
 		vect_diff(&p->point, &s->center, &p->normal);
 		normalize(&p->normal);
-		color_cpy(&p->color, &((t_sphere *)(p->s->shape))->color);
-	//	alter_color_rings(p, 2, 0.8, 1);
+		if (p->inside)
+			vect_scalar(&p->normal, -1, &p->normal);
+		color_cpy(&((t_sphere *)(p->s->shape))->color ,&p->color);
+		if (p->s->c_pattern != E_NONE) 
+			alter_color_rings(p, 2, 0.8, 1);
 	}
 	else if (p->s->id == E_PLANE)
 	{
@@ -260,7 +323,13 @@ void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 		vect_sum(&c->pov, &tmp, &p->point);
 		vect_cpy(&((t_plane *)p->s->shape)->normal, &p->normal);
 		color_cpy(&p->color, &((t_plane *)(p->s->shape))->color);
-		alter_color_checkered(p, 2, 0.8);
+		if (p->s->c_pattern != E_NONE)
+		{
+			t_vect cp = new_vect(5, 10, 5);
+			alter_color_pattern(p, &cp, 0.8);
+		}
+		else
+			alter_color_checkered(p, 2, 0.8);
 	}
 	else if (p->s->id == E_CYLINDER)
 	{
@@ -268,19 +337,24 @@ void	get_intersection_info(t_intrsct *p, t_vect *v, t_camera *c)
 		vect_diff(&p->point, &cy->center, &tmp);
 		vect_scalar(&cy->normal, vect_dot(&tmp, &cy->normal), &tmp);
 		vect_diff(&tmp, &p->point, &p->normal);
-	//	if (p->inside)
-	//		vect_scalar(&p->normal, -1, &p->normal);
+		if (p->inside)
+			vect_scalar(&p->normal, -1, &p->normal);
 		normalize(&p->normal);
+		if (p->s->c_pattern != E_NONE)
+		{
+			alter_color_stripe(p, 3, 0.5, 1);
+			alter_color_rings(p, 3, 0.5, 2);
+		}
 	}
-	// else if (p->s->id == E_HYPERBLOID)
-	// {
-	// 	(t_hyperbloid *)p->s->shape;
-	// }
-	// else if (p->s->id == E_QUADRATIC)
-	// {
-	// 	(t_quadric *)p->s->shape;
-	// }
-
+	else if (p->s->id == E_CONE)
+	{
+		t_cone *cy = p->s->shape;
+		color_cpy(&cy->color, &p->color);
+		if (point_equ(&cy->center, &p->point))
+			vect_cpy(&cy->normal, &p->normal);
+		if (p->s->c_pattern != E_NONE)
+			alter_color_rings(p, 3, 0.5, 2);
+	}
 }
 
 void	ft_shade(t_intrsct *p, t_dlist *light, t_dlist *obj)

@@ -45,9 +45,13 @@ void	display_canvas(t_canvas *cnv, t_mlx *mlx)
 
 void lazy_canvas_update(t_mrt *w)
 {
+	int size[2];
+
 	w->update = 1;
+	size[0] = w->lazy->height;
+	size[1] = w->lazy->width;
 	delete_canvas(&w->lazy);
-	w->lazy = init_canvas(w->c, 100, 100);
+	w->lazy = init_canvas(w->c, size[0], size[1]);
 	cast_rays(w->lazy, w->objs, w->c);
 	display_canvas(w->lazy, &w->display);
 	mlx_put_image_to_window(w->display.mlx, w->display.window, w->display.img, 0, 0);

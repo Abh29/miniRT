@@ -22,3 +22,12 @@ void	vect_cpy(t_vect *src, t_vect *dst)
 	dst->z = src->z;
 	dst->w = src->w;
 }
+
+int	point_equ(t_vect *a, t_vect *b)
+{
+	if (fabs(a->x - b->x) < EPSILON)
+		if (fabs(a->y - b->y) < EPSILON)
+			if (fabs(a->z - b->z) < EPSILON)
+				return (1);
+	return (0);
+}

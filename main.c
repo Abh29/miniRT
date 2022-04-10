@@ -1,134 +1,30 @@
 #include "mrt.h"
 
-void transform_all_shapes(t_dlist *objs, t_mat *tr)
+void	print_help(void)
 {
-	t_shape *s;
-
-	while (objs != NULL)
-	{
-		s = objs->content;
-		mat_cpy(tr, s->transform);
-		s->updated = 1;
-		objs = objs->next;
-	}
+	ft_putstr_fd("z-s q-f a-e           : move camera\n", 1);
+	ft_putstr_fd("8-2 6-4 7-9           : move a selected object\n", 1);
+	ft_putstr_fd("r                     : refresh screen\n", 1);
+	ft_putstr_fd("* /                   : reflect-unreflect object surface\n", 1);
+	ft_putstr_fd("+ -                   : change camera's fov\n", 1);
+	ft_putstr_fd("up-down right-left    : rotate the camera\n", 1);
+	ft_putstr_fd("1-3                   : scale up-down a selected object\n", 1);
+	ft_putstr_fd("w                     : unselect all objects\n", 1);
+	ft_putstr_fd("i-k o-l p-m           : rotate a selected object\n", 1);
+	ft_putstr_fd("h                     : hide selected objects\n", 1);
+	ft_putstr_fd("y                     : display all the objects in the scene\n", 1);
 }
 
-int	ft_key_hook(int key, t_mrt *w)
+int	exit_mrt(t_mrt *w)
 {
-	printf("key %d\n", key);
-	if (key == 65307 || key == 53)
-	{
-		delete_world_objects(&w->objs);
-		delete_canvas(&w->cnv);
-		delete_canvas(&w->lazy);
-		mlx_destroy_image(w->display.mlx, w->display.img);
-		mlx_destroy_window(w->display.mlx, w->display.window);
-		mlx_destroy_display(w->display.mlx);
-		printf("bye!\n");
-		exit(0);
-	}
-	if (key == 'r')
-		update_canvas(w);
-	if (key == 'l')
-		lazy_canvas_update(w);
-	if ((key == '+' || key == 65451) && w->c->fov > 1)
-	{
-		w->c->fov -= 1;
-		lazy_canvas_update(w);
-	}
-	if ((key == '-' || key == 65453) && w->c->fov < 179)
-	{
-		w->c->fov += 1;
-		lazy_canvas_update(w);
-	}
-	if (key == 65362)
-	{
-		rotate_camera_on_y(w, -10);
-		printf("up\n");
-	}
-	if (key == 65364)
-	{	
-		rotate_camera_on_y(w, 10);
-		printf("down\n");
-	}
-	if (key == 65363)
-	{
-		rotate_camera_on_z(w, -10);
-		printf("right\n");
-	}
-	if (key == 65361)
-	{
-		rotate_camera_on_z(w, 10);
-		printf("left\n");	
-	}
-	if (key == 'z')
-	{
-		vect_sum(&w->c->pov, &w->c->up, &w->c->pov);
-		lazy_canvas_update(w);
-	}
-	if (key == 's')
-	{
-		vect_diff(&w->c->pov, &w->c->up, &w->c->pov);
-		lazy_canvas_update(w);
-	}
-	if (key == 'd')
-	{
-		vect_sum(&w->c->pov, &w->c->right, &w->c->pov);
-		lazy_canvas_update(w);
-	}
-	if (key == 'q')
-	{
-		vect_diff(&w->c->pov, &w->c->right, &w->c->pov);
-		lazy_canvas_update(w);
-	}
-	if (key == 'e')
-	{
-		vect_sum(&w->c->pov, &w->c->normal, &w->c->pov);
-		lazy_canvas_update(w);
-	}
-	if (key == 'a')
-	{
-		vect_diff(&w->c->pov, &w->c->normal, &w->c->pov);
-		lazy_canvas_update(w);
-	}
-
-	return (0);
-}
-
-int	ft_mouse_hook(int key, int x, int y, t_mrt *w)
-{
-	printf("x : %d   y : %d   key : %d\n", x, y, key);
-	t_vect v = map_canvas_to_window(w->cnv, &w->display, x, y);
-	printf("i : %lf, j : %lf\n", v.x, v.y);
-	print_color(&w->cnv->pixels[(int)v.x][(int)v.y].color);
-	t_dlist	*p = w->objs;
-	t_intrsct *itr = NULL;
-	t_intrsct *tmp;
-	if (key == 1)
-	{
-	while (p)
-	{
-			tmp = intr_shape_vect(p->content, &w->cnv->cast_rays[(int)v.x][(int)v.y], w->c);
-			if (tmp && !itr && tmp->dist > EPSILON)
-				itr = tmp;
-			else if (tmp && itr && tmp->dist < itr->dist && tmp->dist > EPSILON)
-			{
-				delete_intersection_point(&itr);
-				itr = tmp;
-			}else if (tmp)
-				delete_intersection_point(&tmp);
-			p = p->next;
-		}
-		if (itr)
-		{
-			itr->s->selected = itr->s->selected == 1 ? 0 : 1;
-			printf("opject intersected is %d   selected %d\n", itr->s->id, itr->s->selected);
-			lazy_canvas_update(w);
-			delete_intersection_point(&itr);
-		}
-		else
-			printf("no object intersected !\n");
-	}
+	delete_world_objects(&w->objs);
+	delete_canvas(&w->cnv);
+	delete_canvas(&w->lazy);
+	mlx_destroy_image(w->display.mlx, w->display.img);
+	mlx_destroy_window(w->display.mlx, w->display.window);
+	mlx_destroy_display(w->display.mlx);
+	ft_putstr_fd("bye!\n", 1);
+	exit(0);
 	return (0);
 }
 
@@ -138,25 +34,22 @@ int	main(int argc, char **argv)
 	(void) argv;
 	t_mrt	world;
 
-	world.objs = read_file("testmap");
-	printf("obj size : %d\n", ft_dlstsize(world.objs));
+	if (argc != 2)
+		ft_exit("Error : wrong number of arguments\n", NULL, 1);
+	world.objs = read_file(argv[1]);
 	world.c = get_camera(world.objs);
 	if (world.c == NULL)
 		ft_exit("no camera !\n", NULL, 1);
-	
 	init_mlx(&world.display, 1000, 1000);
 	mlx_key_hook(world.display.window, &ft_key_hook, &world);
 	mlx_mouse_hook(world.display.window, &ft_mouse_hook, &world);
-
-	world.cnv = init_canvas(world.c, 400, 400);
-	world.lazy = init_canvas(world.c, 100, 100);
-	printf("init canvas done ! \n");
-	//getchar();
+	world.cnv = init_canvas(world.c, 750, 750);
+	world.lazy = init_canvas(world.c, 180, 180);
 	cast_rays(world.cnv, world.objs, world.c);
-	printf("ray casting done !\n");
 	display_canvas(world.cnv, &world.display);
 	mlx_put_image_to_window(world.display.mlx, world.display.window, world.display.img, 0, 0);
+	//mlx_hook(world.display.mlx, 17, 0, exit_mrt, &world);
+	print_help();
 	mlx_loop(world.display.mlx);
-
 	return (0);
 }

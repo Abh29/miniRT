@@ -24,6 +24,7 @@ t_shape	*new_shape(void)
 	out->transform = NULL;
 	out->updated = 0;
 	out->selected = 0;
+	out->hide = 0;
 	return (out);
 }
 

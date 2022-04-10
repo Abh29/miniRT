@@ -25,6 +25,8 @@
 #define EPSILON   1e-8
 
 #define CAST_SHADOWS	1
+#define REFLECTIONS		1
+#define NTH				6
 
 typedef struct	s_vect {
 	double	x;
@@ -67,6 +69,7 @@ typedef struct s_phong
 	t_rgba		ambient;
 	t_ambient	diffuse;
 	t_ambient	specular;
+	t_rgba		reflection;
 	double		roughness;
 }		t_phong;
 
@@ -85,6 +88,7 @@ typedef	enum e_shapes{
 	E_SPHERE,
 	E_PLANE,
 	E_CYLINDER,
+	E_CONE,
 	E_HYPERBLOID,
 	E_QUADRATIC
 }		t_shape_id;
@@ -104,6 +108,8 @@ typedef struct  s_shape {
 	t_cpttrn	c_pattern;
 	int			updated;
 	int			selected;
+	double		rflct;
+	int			hide;
 }	t_shape;
 
 
@@ -142,6 +148,14 @@ typedef struct s_quadric {
 	double	k;
 	t_rgba	color;
 }	t_quadric;
+
+typedef struct s_cone {
+	t_vect	center;
+	t_vect	normal;
+	double	height;
+	double	alfa;
+	t_rgba	color;
+}	t_cone;
 
 typedef	struct	s_illumination {
 	t_rgba	light;
@@ -228,7 +242,7 @@ typedef struct s_mrt
 void			ft_exit(char *str, char *msg, int err);
 void			*ft_allocate(int n, int size);
 void			ft_free_split(char ***split);
-
+int				exit_mrt(t_mrt *world);
 
 /*********vecters************/
 t_vect			new_vect(double x, double y, double z);
@@ -261,6 +275,7 @@ double			vect_len(t_vect *v);
 int				dist_cmp(t_vect *a, t_vect *b, t_vect *cntr);
 double			prjct_resolution(t_vect *a, t_vect *b);
 void			vect_reflect(t_vect *in, t_vect *normal, t_vect *reflect);
+int				point_equ(t_vect *a, t_vect *b);
 
 /**********matrices*****************/
 t_mat			*create_mat(int n, int m);
@@ -294,6 +309,8 @@ void			alter_color(t_rgba *c, int r, int g, int b);
 int				color_to_int(t_rgba *c);
 void			int_to_color(int rgb, t_rgba *c);
 void			color_cpy(t_rgba *c, t_rgba *dest);
+void			avg_colors(t_rgba *a, t_rgba *b, t_rgba *res);
+void			avg_colors2(t_rgba *a, double y1, t_rgba *b, double y2, t_rgba *res);
 
 /**********create-delete*********/
 t_shape			*new_shape(void);
@@ -314,6 +331,8 @@ t_hyperbloid	*new_hyperbloid(void);
 void			delete_hyperloid(t_hyperbloid **h);
 t_quadric		*new_quadric(void);
 void			delete_quadric(t_quadric **q);
+t_cone			*new_cone(void);
+void			delete_cone(t_cone **c);
 void			delete_world_objects(t_dlist **obj);
 
 /*********camera*************/
@@ -333,6 +352,7 @@ void			init_plane(t_shape *s, char **spt);
 void			init_cylinder(t_shape *s, char **spt);
 void			init_hyperbloid(t_shape *s, char **spt);
 void			init_quadratic(t_shape *s, char **spt);
+void			init_cone(t_shape *s, char **spt);
 
 /**********parser*************/
 t_dlist			*read_file(char *path);
@@ -350,7 +370,7 @@ t_intrsct		*intr_plane_vect(t_plane *s, t_vect *v, t_camera *c);
 t_intrsct		*intr_cylinder_vect(t_cylinder *s, t_vect *v, t_camera *c);
 t_intrsct		*intr_hyperbloid_vect(t_hyperbloid *s, t_vect *v, t_camera *c);
 t_intrsct		*intr_quadric_vect(t_quadric *s, t_vect *v, t_camera *c);
-
+t_intrsct		*intr_cone_vect(t_cone *s, t_vect *v, t_camera *c);
 
 /**********transformations*******/
 t_mat			*translation_matrix(double x, double y, double z);
@@ -360,7 +380,14 @@ t_mat			*rotation_y(double deg);
 t_mat			*rotation_z(double deg);
 t_mat			*shearing(double prp[6]);
 t_mat			*rotation_matrix(void);
-
+void			transform_selected(t_dlist *obj, t_mat *trns, t_mat *scl, t_mat *rot);
+void			transform_shape(t_shape *s, t_mat *trns, t_mat *scl, t_mat *rot);
+void			transform_sphere(t_sphere *s, t_mat *trns, t_mat *scl, t_mat *rot);
+void			transform_plane(t_plane *s, t_mat *trns, t_mat *scl, t_mat *rot);
+void			transform_cylinder(t_cylinder *s, t_mat *trns, t_mat *scl, t_mat *rot);
+void			transform_quadric(t_quadric *s, t_mat *trns, t_mat *scl, t_mat *rot);
+void			transform_hyperbloid(t_hyperbloid *s, t_mat *trns, t_mat *scl, t_mat *rot);
+void			transform_cone(t_cone *s, t_mat *trns, t_mat *scl, t_mat *rot);
 
 /*********casting********/
 void	cast_rays(t_canvas *cnv, t_dlist *lst, t_camera *c);
@@ -391,7 +418,12 @@ t_mat			*get_camera_to_world_matrix(t_camera *c);
 void			rotate_camera_on_y(t_mrt *w, double deg);
 void			rotate_camera_on_z(t_mrt *w, double deg);
 
-/************hook****************/
-
+/************hooks****************/
+int				ft_key_hook(int key, t_mrt *w);
+int				ft_mouse_hook(int key, int x, int y, t_mrt *w);
+void 			reflect_selected(t_dlist *obj, double ref);
+void 			unselect_all(t_dlist *objs);
+int				is_selected(t_dlist *objs);
+void			 transform_all_shapes(t_dlist *objs, t_mat *tr);
 
 #endif

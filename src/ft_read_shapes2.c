@@ -32,7 +32,6 @@ void	init_sphere(t_shape *s, char **spt)
 {
 	t_sphere	*l;
 
-	printf("sp\n");
 	if (!s || !spt || !spt[0] || !spt[1] || !spt[2] || !spt[3])
 		ft_exit("Error : not enough info for ", "Sphere !", 1);
 	s->id = E_SPHERE;
@@ -61,7 +60,6 @@ void	init_plane(t_shape *s, char **spt)
 		ft_exit("Error : ill formed vector ", "plane normal !", 1);
 	if (init_rgba_str(&l->color, spt[3]) == 0)
 		ft_exit("Error : ill formed color ", "plane !", 1);
-	printf("plane color : %d %d %d\n", l->color.r, l->color.g, l->color.b);
 	s->shape = l;
 }
 
@@ -87,5 +85,31 @@ void	init_cylinder(t_shape *s, char **spt)
 		ft_exit("Error : ill formed value ", "Cylinder height !", 1);
 	if (init_rgba_str(&l->color, spt[5]) == 0)
 		ft_exit("Error : ill formed color ", "Cylinder !", 1);
+	s->shape = l;
+}
+
+void	init_cone(t_shape *s, char **spt)
+{
+	t_cone	*l;
+
+	if (!s || !spt || !spt[0] || !spt[1] || \
+	!spt[2] || !spt[3] || !spt[4] || !spt[5])
+		ft_exit("Error : not enough info for ", "cone !", 1);
+	s->id = E_CONE;
+	l = new_cone();
+	if (init_point_str(&l->center, spt[1]) == 0)
+		ft_exit("Error : ill formed point ", "cone !", 1);
+	if (init_vect_str(&l->normal, spt[2]) == 0)
+		ft_exit("Error : ill formed vector ", "cone normal !", 1);
+	normalize(&l->normal);
+	l->height = ft_atod(spt[3]);
+	if (l->height < 0)
+		ft_exit("Error : ill formed value ", "cone diam !", 1);
+	l->alfa = ft_atod(spt[4]);
+	if (l->alfa < 0 && l->alfa > 90)
+		ft_exit("Error : ill formed value ", "cone height !", 1);
+	l->alfa = l->alfa * M_PI / 180;
+	if (init_rgba_str(&l->color, spt[5]) == 0)
+		ft_exit("Error : ill formed color ", "cone !", 1);
 	s->shape = l;
 }

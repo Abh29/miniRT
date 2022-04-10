@@ -14,6 +14,8 @@
 
 void	delete_sphere(t_sphere **sp)
 {
+	if (!sp || !*sp)
+		return ;
 	free(*sp);
 }
 
@@ -32,6 +34,8 @@ t_plane	*new_plane(void)
 
 void	delete_plane(t_plane **pl)
 {
+	if (!pl || !*pl)
+		return ;
 	free(*pl);
 }
 
@@ -52,5 +56,29 @@ t_cylinder	*new_cylinder(void)
 
 void	delete_cylinder(t_cylinder **cl)
 {
+	if (!cl || !*cl)
+		return ;
 	free(*cl);
+}
+
+t_cone	*new_cone(void)
+{
+	t_cone	*out;
+
+	out = malloc(sizeof(t_cone));
+	if (out == NULL)
+		ft_exit("Error : could not allocate memory\n", NULL, 1);
+	out->alfa = 0;
+	out->height = 0;
+	init_point(&out->center);
+	init_vect(&out->normal);
+	init_rgba(&out->color);
+	return (out);
+}
+
+void delete_cone(t_cone **c)
+{
+	if (!c || !*c)
+		return ;
+	free(*c);
 }
